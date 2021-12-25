@@ -1,5 +1,6 @@
 interface Payload {
 	event: socketEvent;
+	data: any;
 }
 
-type socketEvent = "fetch" | "command" | "start" | "stop";
+type socketEvent = "status" | "command" | "start" | "stop";

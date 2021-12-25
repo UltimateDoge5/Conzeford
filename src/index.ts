@@ -45,9 +45,18 @@ wsServer.on("connection", (socket) => {
 		}
 
 		switch (dataParsed.event) {
-			case "fetch":
-				break;
 			case "command":
+				if (instance.enabled == false) {
+					socket.send(JSON.stringify({ error: "Server is disabled" }));
+					return;
+				}
+
+				if (dataParsed.data == null || dataParsed.data.command == null) {
+					socket.send(JSON.stringify({ error: "No command specified" }));
+					return;
+				}
+
+				instance.executeCommand(dataParsed.data.command);
 				break;
 			case "start":
 				(() => {
@@ -64,6 +73,9 @@ wsServer.on("connection", (socket) => {
 					const result = instance.stop();
 					if (result) {
 						socket.send(JSON.stringify({ event: "stop", success: true }));
+						instance.once("close", () => {
+							socket.send(JSON.stringify({ event: "status", enabled: false }));
+						});
 					} else {
 						socket.send(JSON.stringify({ event: "stop", success: false }));
 					}
@@ -72,9 +84,20 @@ wsServer.on("connection", (socket) => {
 		}
 	});
 });
+
 //Setup minecraft server
 const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
 
 instance.addListener("stdout", (data: Buffer) => {
-	console.log(data.toString("utf-8"));
+	let color = "white";
+
+	if (data.toString().match(/(?<=\[)(.*?WARN)(?=\])/)) {
+		color = "yellow";
+	} else if (data.toString().match(/(?<=\[)(.*?ERROR)(?=\])/)) {
+		color = "red";
+	}
+
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "log", data: data.toString("utf-8"), color }));
+	});
 });

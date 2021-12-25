@@ -8,7 +8,9 @@ class McServer extends EventEmitter {
 	constructor(autostart = false) {
 		super();
 		if (autostart) {
-			this.start();
+			setTimeout(() => {
+				this.start();
+			}, 5000);
 		}
 	}
 
@@ -41,6 +43,12 @@ class McServer extends EventEmitter {
 			return true;
 		}
 		return false;
+	};
+
+	executeCommand = (command: string) => {
+		if (this.enabled) {
+			this.process.stdin.write(`${command}\n`);
+		}
 	};
 }
 
