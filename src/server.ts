@@ -20,10 +20,12 @@ class McServer extends EventEmitter {
 			setTimeout(() => {
 				this.process.stdin.write("stop\n");
 			}, 10 * 1000);
+			return true;
 		}
+		return false;
 	};
 
-	start = () => {
+	start = (): boolean => {
 		if (!this.enabled) {
 			this.process = spawn("java", ["-jar", process.env.SERVER_JAR as string, "--nogui"], { cwd: process.env.SERVER_DIR });
 			this.process.stdout.addListener("data", (data: string) => {
@@ -36,7 +38,9 @@ class McServer extends EventEmitter {
 			});
 
 			this.enabled = true;
+			return true;
 		}
+		return false;
 	};
 }
 
