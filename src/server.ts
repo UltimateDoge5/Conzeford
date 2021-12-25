@@ -15,8 +15,11 @@ class McServer extends EventEmitter {
 	stop = () => {
 		if (this.enabled) {
 			console.log("Stopping minecraft server...");
-			this.process.stdin.write("stop\n");
-			this.enabled = false;
+			this.process.stdin.write("say Wylaczanko za 10 sekund\n");
+
+			setTimeout(() => {
+				this.process.stdin.write("stop\n");
+			}, 10 * 1000);
 		}
 	};
 
@@ -26,6 +29,12 @@ class McServer extends EventEmitter {
 			this.process.stdout.addListener("data", (data: string) => {
 				this.emit("stdout", data);
 			});
+
+			this.process.stdout.addListener("close", () => {
+				this.enabled = false;
+				this.emit("close");
+			});
+
 			this.enabled = true;
 		}
 	};

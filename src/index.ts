@@ -24,7 +24,6 @@ if (process.env.SERVER_JAR == undefined) {
 }
 
 const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
-// const instance = new McServer(true);
 
 instance.addListener("stdout", (data: Buffer) => {
 	console.log(data.toString("utf-8"));
