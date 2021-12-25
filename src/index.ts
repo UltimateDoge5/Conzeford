@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { join } from "path";
+import { dirname, join } from "path";
 import dotenv from "dotenv";
 import McServer from "./server";
 import { Server } from "ws";
@@ -20,10 +20,11 @@ if (result.error) {
 const app = express();
 const wsServer = new Server({ noServer: true });
 
-app.use(express.static(join(__dirname, "web/build")));
+app.use("/scripts", express.static(join(dirname(__dirname), "build/web")));
+app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
 app.get("*", (req_: Request, res: Response) => {
-	res.sendFile(join(__dirname + "/web/build/index.html"));
+	res.sendFile(join(dirname(__dirname), "/web/index.html"));
 });
 
 const server = app.listen(8080, () => console.log("Listening on port 8080"));
@@ -35,6 +36,9 @@ server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) =>
 });
 
 wsServer.on("connection", (socket) => {
+	console.log("Client connected");
+	socket.send(JSON.stringify({ event: "status", enabled: instance.enabled }));
+
 	socket.on("message", (data) => {
 		let dataParsed: Payload;
 		try {
@@ -62,7 +66,7 @@ wsServer.on("connection", (socket) => {
 				(() => {
 					const result = instance.start();
 					if (result) {
-						socket.send(JSON.stringify({ event: "start", success: true }));
+						socket.send(JSON.stringify({ event: "status", enabled: true }));
 					} else {
 						socket.send(JSON.stringify({ event: "start", success: false }));
 					}
@@ -98,6 +102,6 @@ instance.addListener("stdout", (data: Buffer) => {
 	}
 
 	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", data: data.toString("utf-8"), color }));
+		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8"), color }));
 	});
 });
