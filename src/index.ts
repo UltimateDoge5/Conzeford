@@ -37,7 +37,7 @@ server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) =>
 
 wsServer.on("connection", (socket) => {
 	console.log("Client connected");
-	socket.send(JSON.stringify({ event: "status", enabled: instance.enabled }));
+	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
 	socket.on("message", (data) => {
 		let dataParsed: Payload;
@@ -50,39 +50,36 @@ wsServer.on("connection", (socket) => {
 
 		switch (dataParsed.event) {
 			case "command":
-				if (instance.enabled == false) {
+				if (instance.status.enabled == false) {
 					socket.send(JSON.stringify({ error: "Server is disabled" }));
 					return;
 				}
 
-				if (dataParsed.data == null || dataParsed.data.command == null) {
+				if (dataParsed.command == null) {
 					socket.send(JSON.stringify({ error: "No command specified" }));
 					return;
 				}
 
-				instance.executeCommand(dataParsed.data.command);
+				instance.executeCommand(dataParsed.command);
 				break;
 			case "start":
 				(() => {
-					const result = instance.start();
-					if (result) {
-						socket.send(JSON.stringify({ event: "status", enabled: true }));
-					} else {
-						socket.send(JSON.stringify({ event: "start", success: false }));
-					}
+					instance.start();
+					socket.send(JSON.stringify({ event: "status", status: instance.status }));
+
+					instance.once("start", () => {
+						socket.send(JSON.stringify({ event: "status", status: instance.status }));
+					});
 				})();
 				break;
 			case "stop":
 				(() => {
-					const result = instance.stop();
-					if (result) {
-						socket.send(JSON.stringify({ event: "stop", success: true }));
-						instance.once("close", () => {
-							socket.send(JSON.stringify({ event: "status", enabled: false }));
-						});
-					} else {
-						socket.send(JSON.stringify({ event: "stop", success: false }));
-					}
+					instance.stop();
+					socket.send(JSON.stringify({ event: "status", status: { ...instance.status, isStopping: true } }));
+
+					instance.once("close", () => {
+						socket.send(JSON.stringify({ event: "status", status: instance.status }));
+					});
 				})();
 				break;
 		}

@@ -1,6 +1,12 @@
 interface Payload {
 	event: socketEvent;
-	data: any;
+	command: any;
+}
+
+interface serverStatus {
+	enabled: boolean;
+	isStarting: boolean;
+	isStopping: boolean;
 }
 
 type socketEvent = "status" | "command" | "start" | "stop";
