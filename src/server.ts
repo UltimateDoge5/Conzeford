@@ -17,7 +17,7 @@ class McServer extends EventEmitter {
 	}
 
 	stop = () => {
-		if (this.status) {
+		if (this.status.enabled && !this.status.isStopping) {
 			this.process.stdin.write("say Wylaczanko za 10 sekund\n");
 
 			setTimeout(() => {
@@ -57,7 +57,8 @@ class McServer extends EventEmitter {
 	};
 
 	executeCommand = (command: string) => {
-		if (this.status) {
+		if (this.status.enabled && !this.status.isStopping && !this.status.isStarting) {
+			this.emit("stdout", Buffer.from(`> ${command}\n`));
 			this.process.stdin.write(`${command}\n`);
 		}
 	};
