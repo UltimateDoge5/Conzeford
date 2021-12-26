@@ -5,6 +5,7 @@ import McServer from "./server";
 import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
+import { open, readFile } from "fs/promises";
 
 const result = dotenv.config({ path: join(__dirname, "../config.env") });
 
@@ -35,9 +36,26 @@ server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) =>
 	});
 });
 
-wsServer.on("connection", (socket) => {
+wsServer.on("connection", async (socket) => {
 	console.log("Client connected");
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
+
+	if (instance.status.enabled || instance.status.isStarting) {
+		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
+		const logs = log.split("\n");
+
+		logs.forEach((line) => {
+			let color = "white";
+
+			if (line.match(/(?<=\[)(.*?WARN)(?=\])/)) {
+				color = "yellow";
+			} else if (line.match(/(?<=\[)(.*?ERROR)(?=\])/)) {
+				color = "red";
+			}
+
+			socket.send(JSON.stringify({ event: "log", log: line, color }));
+		});
+	}
 
 	socket.on("message", (data) => {
 		let dataParsed: Payload;
