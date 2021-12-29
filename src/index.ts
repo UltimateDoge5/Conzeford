@@ -5,16 +5,16 @@ import McServer from "./server";
 import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
-import { open, readFile } from "fs/promises";
+import { readFile } from "fs/promises";
 
-const result = dotenv.config({ path: join(__dirname, "../config.env") });
+const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
 if (result.error) {
-	throw result.error;
+	throw "No config.env file found.";
 } else if (process.env.SERVER_JAR == undefined) {
-	throw new Error("SERVER_JAR environment variable not set");
+	throw new Error("SERVER_JAR environment variable not set.");
 } else if (process.env.SERVER_DIR == undefined) {
-	throw new Error("SERVER_DIR environment variable not set");
+	throw new Error("SERVER_DIR environment variable not set.");
 }
 
 //Setup express and websocket server

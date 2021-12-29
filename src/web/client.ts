@@ -5,6 +5,7 @@ const serverStatusText = document.querySelector("#serverStatus") as HTMLSpanElem
 const autoscollToggle = document.querySelector("#autoScrollToggle") as HTMLInputElement;
 const commandInput = document.querySelector("#commandInput") as HTMLInputElement;
 const commandButton = document.querySelector("#commandSubmit") as HTMLButtonElement;
+const sidebar = document.querySelector("#sidebar") as HTMLDivElement;
 
 let serverStatus = { enabled: false, isStarting: false, isStopping: false };
 let autoScrollEnabled = true;
@@ -94,4 +95,13 @@ document.addEventListener("keydown", (e) => {
 			commandInput.value = previousCommands[commandShift];
 		}
 	}
+});
+
+document.querySelector(".navLink")?.addEventListener("click", (e) => {
+	const toggle = sidebar.style.width == "6rem";
+	sidebar.style.width = toggle ? "12rem" : "6rem";
+
+	document.querySelectorAll<HTMLSpanElement>(".linkText").forEach((link) => {
+		link.style.opacity = toggle ? "1" : "0";
+	});
 });

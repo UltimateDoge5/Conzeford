@@ -14,3 +14,11 @@ output {
 	display: block;
 	overflow-y: auto;
 }
+
+main {
+	position: relative;
+	padding: 4px;
+	left: 96px;
+	box-sizing: border-box;
+	width: calc(100% - 6rem);
+}

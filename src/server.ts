@@ -33,6 +33,7 @@ class McServer extends EventEmitter {
 		if (!this.status.enabled && !this.status.isStarting) {
 			this.status.isStarting = true;
 			this.process = spawn("java", ["-jar", process.env.SERVER_JAR as string, "--nogui"], { cwd: process.env.SERVER_DIR });
+			this.process.stdout.setEncoding("utf8");
 			this.process.stdout.addListener("data", (data: Buffer) => {
 				this.emit("stdout", data);
 
