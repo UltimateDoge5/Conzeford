@@ -1,7 +1,8 @@
 const socket = new WebSocket("ws://localhost:8080");
 const outputElement = document.querySelector("output") as HTMLOutputElement;
 const serverToggle = document.querySelector("#serverToggle") as HTMLButtonElement;
-const serverStatusText = document.querySelector("#serverStatus") as HTMLSpanElement;
+const serverStatusText = document.querySelector("#status span") as HTMLSpanElement;
+const serverStatusLed = document.querySelector("#status svg circle") as SVGAElement;
 const autoscollToggle = document.querySelector("#autoScrollToggle") as HTMLInputElement;
 const commandInput = document.querySelector("#commandInput") as HTMLInputElement;
 const commandButton = document.querySelector("#commandSubmit") as HTMLButtonElement;
@@ -25,26 +26,31 @@ socket.onmessage = (event) => {
 			break;
 		case "status":
 			serverStatus = parsedMessage.status;
+
 			if (serverStatus.enabled) {
 				serverStatusText.innerHTML = "Running";
 				serverToggle.disabled = false;
 				commandButton.disabled = false;
 				serverToggle.textContent = "Stop";
+				serverStatusLed.style.fill = "#64BD3A";
 			} else if (serverStatus.isStarting) {
 				serverStatusText.innerHTML = "Starting";
 				serverToggle.disabled = true;
 				commandButton.disabled = true;
 				serverToggle.textContent = "Stop";
+				serverStatusLed.style.fill = "#ffdd00";
 			} else if (serverStatus.isStopping) {
 				serverStatusText.innerHTML = "Stopped";
 				serverToggle.disabled = true;
 				commandButton.disabled = true;
 				serverToggle.textContent = "Start";
+				serverStatusLed.style.fill = "#ffdd00";
 			} else {
 				serverStatusText.innerHTML = "Stopped";
 				serverToggle.disabled = false;
 				commandButton.disabled = true;
 				serverToggle.textContent = "Start";
+				serverStatusLed.style.fill = "#FB4747";
 			}
 			break;
 	}

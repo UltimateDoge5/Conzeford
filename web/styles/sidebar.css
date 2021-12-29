@@ -83,6 +83,7 @@ hr {
 	margin: 0;
 	border-color: white;
 	box-sizing: border-box;
+	border-top-width: 0px;
 }
 
 li button {

@@ -1,6 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap");
+
 body {
 	margin: 0;
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-family: "Roboto", sans-serif;
 	min-height: 100vh;
 	width: 100%;
 }
@@ -19,6 +21,8 @@ main {
 	position: relative;
 	padding: 4px;
 	left: 96px;
+	top: 80px;
 	box-sizing: border-box;
 	width: calc(100% - 6rem);
+	height: calc(100% - 80px);
 }
