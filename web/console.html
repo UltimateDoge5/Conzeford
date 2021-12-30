@@ -7,11 +7,12 @@
 		<link rel="stylesheet" href="/styles/style.css" />
 		<link rel="stylesheet" href="/styles/navbar.css" />
 		<link rel="stylesheet" href="/styles/sidebar.css" />
+		<link rel="stylesheet" href="/styles/console.css" />
 		<title>Dashboard</title>
 	</head>
 	<body>
 		<nav id="navbar">
-			<h1>Dashboard</h1>
+			<h1>Console</h1>
 			<h2>Status</h2>
 			<div id="status">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,9 +79,20 @@
 		</nav>
 
 		<main>
-			<button id="serverToggle">Start</button>
+			<output>
+				<label id="autoScrollLabel"><input type="checkbox" id="autoScrollToggle" checked /> Enable auto-scroll</label>
+			</output>
+			<div>
+				<label for="commandInput">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+					</svg>
+				</label>
+				<input id="commandInput" placeholder="Command" />
+				<button id="commandSubmit">Send</button>
+			</div>
 		</main>
 	</body>
 	<script src="/scripts/client.js"></script>
-	<script src="/scripts/dashboard.js"></script>
+	<script src="/scripts/console.js"></script>
 </html>

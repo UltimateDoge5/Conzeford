@@ -1,0 +1,60 @@
+const outputElement = document.querySelector("output") as HTMLOutputElement;
+const autoscollToggle = document.querySelector("#autoScrollToggle") as HTMLInputElement;
+const commandInput = document.querySelector("#commandInput") as HTMLInputElement;
+const commandButton = document.querySelector("#commandSubmit") as HTMLButtonElement;
+
+let autoScrollEnabled = true;
+let commandShift = -1;
+const previousCommands: string[] = [];
+
+socket.addEventListener("message", (event) => {
+	const parsedMessage = JSON.parse(event.data);
+
+	switch (parsedMessage.event) {
+		case "log":
+			outputElement.innerHTML += `<span style="color:${parsedMessage.color}">${parsedMessage.log}</span>`;
+
+			if (autoScrollEnabled) {
+				outputElement.scrollTop = outputElement.scrollHeight;
+			}
+			break;
+	}
+});
+
+autoscollToggle.addEventListener("change", () => {
+	autoScrollEnabled = autoscollToggle.checked;
+});
+
+commandButton.addEventListener("click", () => {
+	const command = commandInput.value.trim();
+	if (command.length == 0) return;
+	socket.send(JSON.stringify({ event: "command", command: command }));
+
+	if (previousCommands.length >= 100) previousCommands.pop();
+	previousCommands.unshift(command);
+	commandInput.value = "";
+});
+
+commandInput.addEventListener("keypress", (e) => {
+	if (e.code === "Enter" && !commandButton.disabled) {
+		commandButton.click();
+	}
+});
+
+document.addEventListener("keydown", (e) => {
+	if (document.activeElement != commandInput) return;
+	if (e.code === "ArrowUp") {
+		if (previousCommands.length > 0 && commandShift + 1 < previousCommands.length) {
+			commandShift++;
+			commandInput.value = previousCommands[commandShift];
+		}
+	} else if (e.code === "ArrowDown") {
+		if (commandShift - 1 == -1) {
+			commandShift--;
+			commandInput.value = "";
+		} else if (previousCommands.length > 0) {
+			commandShift--;
+			commandInput.value = previousCommands[commandShift];
+		}
+	}
+});

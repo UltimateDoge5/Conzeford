@@ -24,7 +24,11 @@ const wsServer = new Server({ noServer: true });
 app.use("/scripts", express.static(join(dirname(__dirname), "build/web")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
-app.get("*", (req_: Request, res: Response) => {
+app.get("/console", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/console.html"));
+});
+
+app.get("*", (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "/web/index.html"));
 });
 
@@ -37,7 +41,6 @@ server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) =>
 });
 
 wsServer.on("connection", async (socket) => {
-	console.log("Client connected");
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
 	if (instance.status.enabled || instance.status.isStarting) {
