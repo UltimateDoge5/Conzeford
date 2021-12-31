@@ -46,7 +46,8 @@
 	overflow: hidden;
 }
 
-.navLink:not(.active):hover {
+.navLink:not(.active):hover,
+.navLink:not(.active):focus {
 	filter: grayscale(0%) opacity(1);
 	background: dodgerblue;
 }
@@ -63,7 +64,9 @@
 }
 
 .navLink.active:hover,
-.navLink.navLink.active:hover * {
+.navLink.navLink.active:hover *,
+.navLink.active:focus,
+.navLink.navLink.active:focus * {
 	background-color: #121212;
 }
 

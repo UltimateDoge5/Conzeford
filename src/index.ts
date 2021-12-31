@@ -28,6 +28,10 @@ app.get("/console", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/console.html"));
 });
 
+app.get("/settings", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/settings.html"));
+});
+
 app.get("*", (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "/web/index.html"));
 });
@@ -86,21 +90,11 @@ wsServer.on("connection", async (socket) => {
 			case "start":
 				(() => {
 					instance.start();
-					socket.send(JSON.stringify({ event: "status", status: instance.status }));
-
-					instance.once("start", () => {
-						socket.send(JSON.stringify({ event: "status", status: instance.status }));
-					});
 				})();
 				break;
 			case "stop":
 				(() => {
 					instance.stop();
-					socket.send(JSON.stringify({ event: "status", status: { ...instance.status, isStopping: true } }));
-
-					instance.once("close", () => {
-						socket.send(JSON.stringify({ event: "status", status: instance.status }));
-					});
 				})();
 				break;
 		}
@@ -123,3 +117,18 @@ instance.addListener("stdout", (data: Buffer) => {
 		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8"), color }));
 	});
 });
+
+instance.addListener("status", (status: serverStatus) => {
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "status", status }));
+	});
+});
+
+const onExit = () => {
+	instance.stop();
+};
+
+process.on("exit", onExit);
+
+process.on("SIGUSR1", onExit);
+process.on("SIGUSR2", onExit);

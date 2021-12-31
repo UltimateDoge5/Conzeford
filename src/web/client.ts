@@ -9,15 +9,13 @@ let serverStatus = { enabled: false, isStarting: false, isStopping: false };
 socket.addEventListener("message", (event) => {
 	const parsedMessage = JSON.parse(event.data);
 
+	document.dispatchEvent(new CustomEvent("serverMessage", { detail: parsedMessage }));
+
 	switch (parsedMessage.event) {
 		case "status":
 			serverStatus = parsedMessage.status;
 
-			if (serverStatus.enabled) {
-				document.dispatchEvent(new Event("serverStart"));
-				serverStatusText.innerHTML = "Running";
-				serverStatusLed.style.fill = "#64BD3A";
-			} else if (serverStatus.isStarting) {
+			if (serverStatus.isStarting) {
 				document.dispatchEvent(new Event("serverStarting"));
 				serverStatusText.innerHTML = "Starting";
 				serverStatusLed.style.fill = "#ffdd00";
@@ -25,6 +23,10 @@ socket.addEventListener("message", (event) => {
 				document.dispatchEvent(new Event("serverStopping"));
 				serverStatusText.innerHTML = "Stopping";
 				serverStatusLed.style.fill = "#ffdd00";
+			} else if (serverStatus.enabled) {
+				document.dispatchEvent(new Event("serverStart"));
+				serverStatusText.innerHTML = "Running";
+				serverStatusLed.style.fill = "#64BD3A";
 			} else {
 				document.dispatchEvent(new Event("serverStop"));
 				serverStatusText.innerHTML = "Stopped";
