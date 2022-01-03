@@ -1,11 +1,12 @@
 {
   "name": "conzeford",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "main": "index.js",
   "repository": "https://github.com/UltimateDoge5/minecraft-panel.git",
   "author": "UltimateDoge5 <piotr5kozak@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "chalk": "4.1.2",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "ws": "^8.4.0"

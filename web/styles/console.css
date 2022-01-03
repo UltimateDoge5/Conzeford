@@ -75,6 +75,10 @@ main div:nth-child(2) label svg {
 	background-color: #0073e4;
 }
 
+#commandSubmit:focus:not(:focus-visible) {
+	outline: 0;
+}
+
 #commandSubmit:focus {
 	outline: 1px white groove;
 }

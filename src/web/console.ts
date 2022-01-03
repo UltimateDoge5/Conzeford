@@ -67,10 +67,18 @@ document.addEventListener("keydown", (e) => {
 		if (commandShift - 1 == -1) {
 			commandShift--;
 			commandInput.value = "";
+		} else if (commandShift >= -1) {
+			return;
 		} else if (previousCommands.length > 0) {
 			commandShift--;
 			commandInput.value = previousCommands[commandShift];
 		}
+	}
+});
+
+outputElement.addEventListener("click", () => {
+	if (!commandInput.disabled) {
+		commandInput.focus();
 	}
 });
 

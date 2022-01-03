@@ -6,15 +6,27 @@ import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
+import { statSync } from "fs";
+import chalk from "chalk";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
-if (result.error) {
-	throw "No config.env file found.";
-} else if (process.env.SERVER_JAR == undefined) {
-	throw new Error("SERVER_JAR environment variable not set.");
-} else if (process.env.SERVER_DIR == undefined) {
-	throw new Error("SERVER_DIR environment variable not set.");
+try {
+	if (result.error) {
+		throw "No config.env file found.";
+	} else if (process.env.SERVER_JAR == undefined) {
+		throw new Error("SERVER_JAR environment variable not set.");
+	} else if (process.env.SERVER_DIR == undefined) {
+		throw new Error("SERVER_DIR environment variable not set.");
+	}
+
+	//Throw if the path to the jar is not valid.
+	if (statSync(join(process.env.SERVER_DIR, process.env.SERVER_JAR), { throwIfNoEntry: false }) == undefined) {
+		throw new Error("SERVER_DIR/SERVER_JAR is not a valid path.");
+	}
+} catch (error) {
+	console.error(chalk.red(error));
+	process.exit(1);
 }
 
 //Setup express and websocket server
@@ -36,7 +48,7 @@ app.get("*", (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "/web/index.html"));
 });
 
-const server = app.listen(8080, () => console.log("Listening on port 8080"));
+const server = app.listen(process.env.PORT || 5454, () => console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`)));
 
 server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) => {
 	wsServer.handleUpgrade(request, socket, head, (socket) => {
@@ -125,10 +137,13 @@ instance.addListener("status", (status: serverStatus) => {
 });
 
 const onExit = () => {
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "status", status: { isEnabled: false, isStarting: false, isStopping: false } }));
+	});
+
 	instance.stop();
 };
 
 process.on("exit", onExit);
-
 process.on("SIGUSR1", onExit);
 process.on("SIGUSR2", onExit);

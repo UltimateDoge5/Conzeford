@@ -1,5 +1,7 @@
+import chalk from "chalk";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import EventEmitter from "events";
+import { statSync } from "fs";
 import { truncate } from "fs/promises";
 import { join } from "path";
 
@@ -35,7 +37,21 @@ class McServer extends EventEmitter {
 	start = async () => {
 		if (!this.status.enabled && !this.status.isStarting) {
 			this.status.isStarting = true;
-			this.process = spawn("java", ["-jar", process.env.SERVER_JAR as string, "--nogui"], { cwd: process.env.SERVER_DIR });
+			console.log(join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string));
+
+			this.process = spawn("java", ["-jar", join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string), "--nogui"], {
+				cwd: process.env.SERVER_DIR
+			});
+
+			this.process.on("error", (error: any) => {
+				if (error.code == "ENOENT") {
+					console.log(chalk.red(new Error("SERVER_DIR/SERVER_JAR is not a valid path.")));
+				} else {
+					console.log(chalk.red(new Error("Unexpected error occured when starting the server.")));
+				}
+				process.exit(1);
+			});
+
 			this.emit("status", this.status);
 
 			await truncate(join(process.env.SERVER_DIR as string, "logs/latest.log"), 0);
@@ -68,6 +84,7 @@ class McServer extends EventEmitter {
 
 			return true;
 		}
+
 		return false;
 	};
 

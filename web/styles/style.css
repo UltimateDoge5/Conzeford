@@ -10,6 +10,7 @@ body {
 	font-family: "Roboto", sans-serif;
 	min-height: 100vh;
 	width: 100%;
+	color: white;
 }
 
 main {
@@ -19,7 +20,7 @@ main {
 	top: 80px;
 	box-sizing: border-box;
 	width: calc(100% - 6rem);
-	height: calc(100% - 80px);
+	height: calc(100vh - 80px);
 }
 
 button:disabled {
@@ -31,4 +32,31 @@ button:disabled {
 input:disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+/*Spinner yoinked from https://loading.io/css/*/
+.spinner {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+}
+.spinner:after {
+	content: " ";
+	display: block;
+	width: 64px;
+	height: 64px;
+	margin: 8px;
+	border-radius: 50%;
+	border: 6px solid #fff;
+	border-color: #fff transparent #fff transparent;
+	animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }

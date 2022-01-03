@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:8080");
+const socket = new WebSocket(`ws://localhost${location.port ? `:${location.port}` : ""}`);
 
 const serverStatusText = document.querySelector("#status span") as HTMLSpanElement;
 const serverStatusLed = document.querySelector("#status svg circle") as SVGAElement;
