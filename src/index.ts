@@ -8,12 +8,14 @@ import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync } from "fs";
 import chalk from "chalk";
+import settingsRouter, { SettingsReader } from "./settings";
+import bodyParser from "body-parser";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
 try {
 	if (result.error) {
-		throw "No config.env file found.";
+		throw new Error("No config.env file found.");
 	} else if (process.env.SERVER_JAR == undefined) {
 		throw new Error("SERVER_JAR environment variable not set.");
 	} else if (process.env.SERVER_DIR == undefined) {
@@ -33,6 +35,10 @@ try {
 const app = express();
 const wsServer = new Server({ noServer: true });
 
+export const settingsReader = new SettingsReader();
+
+app.use(bodyParser.json());
+
 app.use("/scripts", express.static(join(dirname(__dirname), "build/web")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
@@ -44,11 +50,15 @@ app.get("/settings", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/settings.html"));
 });
 
+app.use("/api", settingsRouter);
+
 app.get("*", (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "/web/index.html"));
 });
 
-const server = app.listen(process.env.PORT || 5454, () => console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`)));
+const server = app.listen(process.env.PORT || 5454, () => {
+	console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`));
+});
 
 server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) => {
 	wsServer.handleUpgrade(request, socket, head, (socket) => {

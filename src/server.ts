@@ -4,6 +4,7 @@ import EventEmitter from "events";
 import { statSync } from "fs";
 import { truncate } from "fs/promises";
 import { join } from "path";
+import { settingsReader } from ".";
 
 class McServer extends EventEmitter {
 	status: serverStatus;
@@ -21,14 +22,21 @@ class McServer extends EventEmitter {
 	}
 
 	stop = () => {
+		const shutdownDelay = settingsReader.settings.shutdownDelay;
 		if (this.status.enabled && !this.status.isStopping) {
-			this.process.stdin.write("say Wylaczanko za 10 sekund\n");
+			if (shutdownDelay.enabled) {
+				this.process.stdin.write(shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString()) + "\n");
 
-			setTimeout(() => {
+				setTimeout(() => {
+					this.process.stdin.write("stop\n");
+					this.status.isStopping = true;
+					this.emit("status", this.status);
+				}, shutdownDelay.delay * 1000);
+			} else {
 				this.process.stdin.write("stop\n");
 				this.status.isStopping = true;
 				this.emit("status", this.status);
-			}, 10 * 1000);
+			}
 			return true;
 		}
 		return false;
@@ -48,6 +56,7 @@ class McServer extends EventEmitter {
 					console.log(chalk.red(new Error("SERVER_DIR/SERVER_JAR is not a valid path.")));
 				} else {
 					console.log(chalk.red(new Error("Unexpected error occured when starting the server.")));
+					throw error;
 				}
 				process.exit(1);
 			});

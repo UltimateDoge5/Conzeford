@@ -1,0 +1,24 @@
+/* #players {
+	background-color: var(--consoleBackground);
+	border-radius: 0.4rem;
+	padding: 4px;
+	width: 25%;
+}
+
+#players div {
+	display: flex;
+	flex-wrap: wrap;
+	min-height: 10vh;
+}
+
+#players h1 {
+	font-size: 1.2rem;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	border-bottom: 1px white solid;
+} */
+
+#status {
+	margin: auto;
+}
