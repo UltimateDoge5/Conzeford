@@ -1,29 +1,24 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
 import { readFile, writeFile } from "fs/promises";
-import { type } from "os";
 import { join } from "path";
-import { settingsReader } from ".";
+import { settingsManager } from ".";
+import { defaultsDeep } from "lodash";
 
 const settingsRouter = Router();
 
 settingsRouter.get("/settings", async (_req: Request, res: Response) => {
-	res.status(200).json(settingsReader.settings);
+	res.status(200).json(settingsManager.settings);
 });
 
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
-	const filteredSettings: Settings = Object.keys(req.body)
-		.filter((key) => Object.keys(SettingsReader.defaultSettings).includes(key))
-		.reduce((obj: any, key) => {
-			obj[key] = req.body[key];
-			return obj;
-		}, {});
+	const filteredSettings: Settings = filterSettings(req.body, Object.keys(SettingsManager.defaultSettings)) as Settings;
 
-	settingsReader.updateSettings({ ...settingsReader.settings, ...filteredSettings });
+	settingsManager.updateSettings(defaultsDeep(filteredSettings, SettingsManager.defaultSettings));
 	res.sendStatus(200);
 });
 
-export class SettingsReader {
+export class SettingsManager {
 	settings!: Settings;
 	static defaultSettings: Settings = {
 		shutdownDelay: {
@@ -44,20 +39,24 @@ export class SettingsReader {
 		} catch (error: any) {
 			if (error.code === "ENOENT") {
 				console.log(chalk.yellow("No settings.json found. Creating a new one."));
+				this.saveToFile(SettingsManager.defaultSettings);
+				this.settings = SettingsManager.defaultSettings;
+				return this.settings;
+			} else if (error instanceof SyntaxError) {
+				console.error(chalk.red("Error parsing settings.json: " + error.message));
+				console.log(chalk.yellow("Reverting to default settings."));
 
-				this.saveToFile(SettingsReader.defaultSettings);
-				this.settings = SettingsReader.defaultSettings;
+				this.saveToFile(SettingsManager.defaultSettings);
+				this.settings = SettingsManager.defaultSettings;
 				return this.settings;
 			} else {
-				console.log(chalk.red(new Error("Unexpected error occured when reading the settings.")));
+				console.error(chalk.red(new Error("Unexpected error occured when reading the settings.")));
 				throw error;
 			}
 		}
 	}
 
 	async saveToFile(settings: Settings) {
-		// const filteredSettings =  settings.filter
-
 		await writeFile(join(process.cwd(), "settings.json"), JSON.stringify(settings, null, 4), "utf8");
 	}
 
@@ -66,6 +65,21 @@ export class SettingsReader {
 		await this.saveToFile(settings);
 	}
 }
+
+//This is a mess I know
+const filterSettings = (obj: any, keys: string[]): Object => {
+	return Object.keys(obj)
+		.filter((key) => keys.includes(key)) //Filter the keys - only keep the ones we want
+		.reduce((reducedObj: any, key) => {
+			// Create the new object with the filtered keys if property is an object filter it recrusevly
+			if (typeof obj[key] === "object") {
+				reducedObj[key] = filterSettings(obj[key], Object.keys((SettingsManager.defaultSettings as any)[key]));
+			} else {
+				reducedObj[key] = obj[key];
+			}
+			return reducedObj;
+		}, {});
+};
 
 interface Settings {
 	shutdownDelay: {

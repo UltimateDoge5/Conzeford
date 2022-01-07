@@ -8,7 +8,7 @@ import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync } from "fs";
 import chalk from "chalk";
-import settingsRouter, { SettingsReader } from "./settings";
+import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
@@ -35,7 +35,7 @@ try {
 const app = express();
 const wsServer = new Server({ noServer: true });
 
-export const settingsReader = new SettingsReader();
+export const settingsManager = new SettingsManager();
 
 app.use(bodyParser.json());
 

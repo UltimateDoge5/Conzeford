@@ -1,10 +1,9 @@
 import chalk from "chalk";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import EventEmitter from "events";
-import { statSync } from "fs";
 import { truncate } from "fs/promises";
 import { join } from "path";
-import { settingsReader } from ".";
+import { settingsManager } from ".";
 
 class McServer extends EventEmitter {
 	status: serverStatus;
@@ -22,7 +21,7 @@ class McServer extends EventEmitter {
 	}
 
 	stop = () => {
-		const shutdownDelay = settingsReader.settings.shutdownDelay;
+		const shutdownDelay = settingsManager.settings.shutdownDelay;
 		if (this.status.enabled && !this.status.isStopping) {
 			if (shutdownDelay.enabled) {
 				this.process.stdin.write(shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString()) + "\n");
