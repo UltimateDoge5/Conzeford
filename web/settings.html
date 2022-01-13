@@ -89,14 +89,14 @@
 					</p>
 				</div>
 
-				<form>
+				<form id="shutdownDelay" name="shutdownDelay">
 					<h2>Shutdown delay settings</h2>
 					<hr />
 					<div id="formGroup">
 						<div style="padding: 8px">
 							<label for="shutdownDelayEnabled">Enable shutdown delay</label>
 							<label class="checkbox">
-								<input type="checkbox" name="shutdownDelayEnabled" id="shutdownDelayEnabled" />
+								<input type="checkbox" name="enabled" id="shutdownDelayEnabled" autocomplete="off" />
 								<span class="check"></span>
 								<span class="label">Enabled</span>
 							</label>
@@ -104,11 +104,11 @@
 						<hr />
 						<div>
 							<label for="shutdownDelay">Shutdown delay</label>
-							<input type="number" name="shutdownDelay" id="shutdownDelay" value="10" disabled />
+							<input type="number" name="delay" id="shutdownDelay" min="10" value="10" disabled />
 						</div>
 						<div>
 							<label for="shutdownMessage">Shutdown message</label>
-							<input type="text" name="shutdownMessage" id="shutdownMessage" value="Server will shutdown in {delay} seconds." disabled />
+							<input type="text" name="message" id="shutdownMessage" value="Server will shutdown in {delay} seconds." disabled />
 						</div>
 					</div>
 					<hr />

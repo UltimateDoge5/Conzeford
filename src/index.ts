@@ -39,7 +39,7 @@ export const settingsManager = new SettingsManager();
 
 app.use(bodyParser.json());
 
-app.use("/scripts", express.static(join(dirname(__dirname), "build/web")));
+app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
 app.get("/console", async (_req: Request, res: Response) => {

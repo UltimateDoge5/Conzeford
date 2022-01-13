@@ -9,4 +9,12 @@ interface serverStatus {
 	isStopping: boolean;
 }
 
+interface Settings {
+	shutdownDelay: {
+		enabled: boolean;
+		delay: number;
+		message: string;
+	};
+}
+
 type socketEvent = "status" | "command" | "start" | "stop";

@@ -14,7 +14,7 @@ settingsRouter.get("/settings", async (_req: Request, res: Response) => {
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
 	const filteredSettings: Settings = filterSettings(req.body, Object.keys(SettingsManager.defaultSettings)) as Settings;
 
-	settingsManager.updateSettings(defaultsDeep(filteredSettings, SettingsManager.defaultSettings));
+	settingsManager.updateSettings(defaultsDeep(filteredSettings, settingsManager.settings, SettingsManager.defaultSettings));
 	res.sendStatus(200);
 });
 
@@ -80,13 +80,5 @@ const filterSettings = (obj: any, keys: string[]): Object => {
 			return reducedObj;
 		}, {});
 };
-
-interface Settings {
-	shutdownDelay: {
-		enabled: boolean;
-		delay: number;
-		message: string;
-	};
-}
 
 export default settingsRouter;
