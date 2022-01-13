@@ -7,8 +7,8 @@
 		<link rel="stylesheet" href="/styles/style.css" />
 		<link rel="stylesheet" href="/styles/navbar.css" />
 		<link rel="stylesheet" href="/styles/sidebar.css" />
-		<link rel="stylesheet" href="/styles/console.css" />
-		<title>Dashboard</title>
+		<link rel="stylesheet" href="/styles/settings.css" />
+		<title>Settings</title>
 	</head>
 	<body>
 		<nav id="navbar">
@@ -78,7 +78,49 @@
 			</ul>
 		</nav>
 
-		<main></main>
+		<main>
+			<section>
+				<div id="description">
+					<h1>Shutdown delay</h1>
+					<p>
+						A delay that will befor shutting down the server. After initiating the shutdown players will be messaged that the shutdown will take
+						place in X amount of time.<br /><br />
+						The delay and the message are configurable.
+					</p>
+				</div>
+
+				<form>
+					<h2>Shutdown delay settings</h2>
+					<hr />
+					<div id="formGroup">
+						<div style="padding: 8px">
+							<label for="shutdownDelayEnabled">Enable shutdown delay</label>
+							<label class="checkbox">
+								<input type="checkbox" name="shutdownDelayEnabled" id="shutdownDelayEnabled" />
+								<span class="check"></span>
+								<span class="label">Enabled</span>
+							</label>
+						</div>
+						<hr />
+						<div>
+							<label for="shutdownDelay">Shutdown delay</label>
+							<input type="number" name="shutdownDelay" id="shutdownDelay" value="10" disabled />
+						</div>
+						<div>
+							<label for="shutdownMessage">Shutdown message</label>
+							<input type="text" name="shutdownMessage" id="shutdownMessage" value="Server will shutdown in {delay} seconds." disabled />
+						</div>
+					</div>
+					<hr />
+					<div id="btnGroup">
+						<button type="submit">Save</button>
+						<button type="reset">Reset</button>
+					</div>
+				</form>
+			</section>
+			<hr />
+			<section></section>
+		</main>
 	</body>
 	<script src="/scripts/client.js"></script>
 	<script src="/scripts/settings.js"></script>

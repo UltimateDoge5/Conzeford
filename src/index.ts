@@ -110,14 +110,10 @@ wsServer.on("connection", async (socket) => {
 				instance.executeCommand(dataParsed.command);
 				break;
 			case "start":
-				(() => {
-					instance.start();
-				})();
+				instance.start();
 				break;
 			case "stop":
-				(() => {
-					instance.stop();
-				})();
+				instance.stop();
 				break;
 		}
 	});

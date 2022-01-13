@@ -24,7 +24,7 @@ class McServer extends EventEmitter {
 		const shutdownDelay = settingsManager.settings.shutdownDelay;
 		if (this.status.enabled && !this.status.isStopping) {
 			if (shutdownDelay.enabled) {
-				this.process.stdin.write(shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString()) + "\n");
+				this.process.stdin.write(`say ${shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString())}\n`);
 
 				setTimeout(() => {
 					this.process.stdin.write("stop\n");
@@ -44,7 +44,6 @@ class McServer extends EventEmitter {
 	start = async () => {
 		if (!this.status.enabled && !this.status.isStarting) {
 			this.status.isStarting = true;
-			console.log(join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string));
 
 			this.process = spawn("java", ["-jar", join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string), "--nogui"], {
 				cwd: process.env.SERVER_DIR

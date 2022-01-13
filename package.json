@@ -20,7 +20,7 @@
     "@types/ws": "^8.2.2"
   },
   "scripts": {
-    "build": "tsc && pkg build/index.js -c package.json"
+    "build": "tsc && pkg build/index.js -c package.json --compress GZip"
   },
   "pkg": {
     "scripts": "build/**/*.js",
