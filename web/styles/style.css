@@ -3,6 +3,11 @@
 :root {
 	--darkBackgorund: #121212;
 	--consoleBackground: #21262b;
+	--primary: #1576d6;
+	--darkPrimary: #0a5da6;
+	--lightPrimary: #e5e8ef;
+	--success: rgb(100, 189, 58);
+	--danger: rgb(251, 71, 71);
 }
 
 body {
@@ -21,6 +26,7 @@ main {
 	box-sizing: border-box;
 	width: calc(100% - 6rem);
 	height: calc(100vh - 80px);
+	background-color: var(--lightPrimary);
 }
 
 button:disabled {

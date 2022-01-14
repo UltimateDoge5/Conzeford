@@ -1,5 +1,4 @@
 main {
-	background-color: #e6eaf0 !important;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -41,7 +40,7 @@ section #description {
 section form {
 	width: 60%;
 	background-color: white;
-	border: 1px #e5e8eff5 solid;
+	border: 1px var(--lightPrimary) solid;
 	border-radius: 0.4rem;
 	padding: 8px;
 	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
@@ -69,29 +68,29 @@ form button {
 }
 
 form button[type="submit"] {
-	background-color: #1576d6;
+	background-color: var(--primary);
 	border: none;
 	color: white;
 }
 
 form button[type="submit"]:focus {
-	outline: #e5e8ef solid;
+	outline: var(--lightPrimary) solid;
 }
 
 form button[type="reset"] {
 	background-color: inherit;
-	border: 1px #e5e8ef solid;
-	color: #1576d6;
+	border: 1px var(--lightPrimary) solid;
+	color: var(--primary);
 }
 
 form button[type="submit"]:hover,
 form button[type="submit"]:active {
-	background-color: #0a5da6;
+	background-color: var(--darkPrimary);
 }
 
 form button[type="reset"]:hover,
 form button[type="reset"]:active {
-	background-color: #e5e8ef;
+	background-color: var(--lightPrimary);
 }
 
 form button:disabled {
@@ -99,12 +98,24 @@ form button:disabled {
 	pointer-events: none;
 }
 
+form div:last-child {
+	display: flex;
+}
+
+form div:last-child span {
+	width: 50%;
+	height: auto;
+	display: flex;
+	align-items: center;
+	padding-left: 8px;
+}
+
 form #btnGroup {
 	display: flex;
 	justify-content: right;
 	align-items: center;
 	gap: 16px;
-	width: 100%;
+	width: 50%;
 }
 
 form #formGroup div {
@@ -144,6 +155,7 @@ input[type="number"] {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	position: relative;
 }
 
 .checkbox input[type="checkbox"] {

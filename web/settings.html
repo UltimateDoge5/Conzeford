@@ -104,17 +104,27 @@
 						<hr />
 						<div>
 							<label for="shutdownDelay">Shutdown delay</label>
-							<input type="number" name="delay" id="shutdownDelay" min="10" value="10" disabled />
+							<input type="number" name="delay" id="shutdownDelay" min="10" value="10" autocomplete="off" disabled />
 						</div>
 						<div>
 							<label for="shutdownMessage">Shutdown message</label>
-							<input type="text" name="message" id="shutdownMessage" value="Server will shutdown in {delay} seconds." disabled />
+							<input
+								type="text"
+								name="message"
+								id="shutdownMessage"
+								value="Server will shutdown in {delay} seconds."
+								autocomplete="off"
+								disabled
+							/>
 						</div>
 					</div>
 					<hr />
-					<div id="btnGroup">
-						<button type="submit">Save</button>
-						<button type="reset">Reset</button>
+					<div>
+						<span id="notification"></span>
+						<div id="btnGroup">
+							<button type="submit" disabled>Save</button>
+							<button type="reset" disabled>Reset</button>
+						</div>
 					</div>
 				</form>
 			</section>
