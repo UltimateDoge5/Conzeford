@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
-import McServer from "./server";
+import McServer, { serverRouter } from "./server";
 import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
@@ -51,6 +51,7 @@ app.get("/settings", async (_req: Request, res: Response) => {
 });
 
 app.use("/api", settingsRouter);
+app.use("/api", serverRouter);
 
 app.get("*", (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "/web/index.html"));
@@ -120,7 +121,7 @@ wsServer.on("connection", async (socket) => {
 });
 
 //Setup minecraft server
-const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
+export const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
 
 instance.addListener("stdout", (data: Buffer) => {
 	let color = "white";

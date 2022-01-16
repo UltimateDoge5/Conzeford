@@ -21,7 +21,7 @@ fetch("/api/settings")
 	});
 
 //For some reason sometimes buttons aren't disabled on reload
-document.querySelectorAll<HTMLButtonElement>("#btnGroup button").forEach((button) => {
+document.querySelectorAll<HTMLButtonElement>("#btnGroup [type='submit']").forEach((button) => {
 	button.disabled = true;
 });
 
@@ -151,8 +151,9 @@ document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 				button.disabled = false;
 			});
 
-			window.onbeforeunload = () => {
-				return "Are you sure you want to leave? You have unsaved changes.";
+			window.onbeforeunload = (event) => {
+				event.preventDefault();
+				return (event.returnValue = "Are you sure you want to leave? You have unsaved changes.");
 			};
 		} else {
 			form.querySelectorAll<HTMLButtonElement>("#btnGroup button").forEach((button) => {

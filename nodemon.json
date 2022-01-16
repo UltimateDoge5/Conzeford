@@ -1,7 +1,8 @@
 {
     "ignore": [
         "web/*",
-        "build/client",
+        "build/client/*",
+        "src/client/*",
         "settings.json"
     ]
 }

@@ -4,7 +4,13 @@ const serverStatusText = document.querySelector("#status span") as HTMLSpanEleme
 const serverStatusLed = document.querySelector("#status svg circle") as SVGAElement;
 const sidebar = document.querySelector("#sidebar") as HTMLDivElement;
 
-let serverStatus = { enabled: false, isStarting: false, isStopping: false };
+let serverStatus: serverStatus = {
+	enabled: false,
+	isStarting: false,
+	isStopping: false,
+	players: [],
+	startDate: null
+};
 
 socket.addEventListener("message", (event) => {
 	const parsedMessage = JSON.parse(event.data);
@@ -14,6 +20,7 @@ socket.addEventListener("message", (event) => {
 	switch (parsedMessage.event) {
 		case "status":
 			serverStatus = parsedMessage.status;
+			document.dispatchEvent(new CustomEvent<serverStatus>("statusUpdate", { detail: serverStatus }));
 
 			if (serverStatus.isStarting) {
 				document.dispatchEvent(new Event("serverStarting"));

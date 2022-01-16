@@ -63,7 +63,7 @@ form > h2 {
 form button {
 	border-radius: 0.4rem;
 	padding: 8px 16px;
-	width: 5rem;
+	min-width: 5rem;
 	transition: all 0.1s ease-in-out;
 }
 
@@ -85,7 +85,7 @@ form button[type="reset"] {
 
 form button[type="submit"]:hover,
 form button[type="submit"]:active {
-	background-color: var(--darkPrimary);
+	background-color: var(--primaryDark);
 }
 
 form button[type="reset"]:hover,

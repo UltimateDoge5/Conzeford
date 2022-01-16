@@ -4,7 +4,7 @@
 	--darkBackgorund: #121212;
 	--consoleBackground: #21262b;
 	--primary: #1576d6;
-	--darkPrimary: #0a5da6;
+	--primaryDark: #0a5da6;
 	--lightPrimary: #e5e8ef;
 	--success: rgb(100, 189, 58);
 	--danger: rgb(251, 71, 71);
@@ -46,7 +46,7 @@ input:disabled {
 	width: 80px;
 	height: 80px;
 }
-.spinner:after {
+.spinner::after {
 	content: " ";
 	display: block;
 	width: 64px;
@@ -56,6 +56,10 @@ input:disabled {
 	border: 6px solid #fff;
 	border-color: #fff transparent #fff transparent;
 	animation: spin 1.2s linear infinite;
+}
+
+.spinner.dark::after {
+	border-color: #363636 transparent #363636 transparent;
 }
 
 @keyframes spin {
