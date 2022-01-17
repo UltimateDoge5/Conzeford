@@ -1,29 +1,65 @@
-const serverToggle = document.querySelector("#serverToggle") as HTMLButtonElement;
 const statusContainer = document.querySelector("#dashboardStatus section") as HTMLDivElement;
 const playersContainer = document.querySelector("#players section") as HTMLDivElement;
 const worldSizeContainer = document.querySelector("#worldSize section") as HTMLDivElement;
 
+let uptimeCounter = false;
+let uptimeInterval: number;
+
 document.addEventListener("serverStart", () => {
-	serverToggle.innerText = "Stop";
-	serverToggle.disabled = false;
+	document.querySelectorAll<HTMLButtonElement>(".serverToggle").forEach((button) => {
+		if (button.dataset.behavior == "start") {
+			button.disabled = true;
+		} else {
+			button.disabled = false;
+		}
+	});
 });
 
 document.addEventListener("serverStarting", () => {
-	serverToggle.disabled = true;
+	document.querySelectorAll<HTMLButtonElement>(".serverToggle").forEach((button) => {
+		button.disabled = true;
+	});
 });
 
 document.addEventListener("serverStopping", () => {
-	serverToggle.disabled = true;
+	document.querySelectorAll<HTMLButtonElement>(".serverToggle").forEach((button) => {
+		button.disabled = true;
+	});
 });
 
 document.addEventListener("serverStop", () => {
-	serverToggle.innerText = "Start";
-	serverToggle.disabled = false;
+	document.querySelectorAll<HTMLButtonElement>(".serverToggle").forEach((button) => {
+		if (button.dataset.behavior == "start") {
+			button.disabled = false;
+		} else {
+			button.disabled = true;
+		}
+	});
+
+	window.clearInterval(uptimeInterval);
+	uptimeCounter = false;
 });
 
 document.addEventListener("statusUpdate", (event: any) => {
 	playersContainer.classList.remove("loading");
 	playersContainer.innerHTML = "";
+
+	const updateTime = () => {
+		const date = new Date(Date.now() - new Date(event.detail.startDate).getTime());
+
+		const hours = date.getHours() - 1 < 10 ? "0" + (date.getHours() - 1) : date.getHours() - 1;
+		const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+		const seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+
+		(document.querySelector("#dashboardStatus #uptime") as HTMLSpanElement).innerText = `${hours}:${minutes}:${seconds}`;
+	};
+
+	if (!uptimeCounter && event.detail.startDate != null) {
+		uptimeCounter = true;
+		updateTime();
+
+		uptimeInterval = window.setInterval(updateTime, 1000);
+	}
 
 	event.detail.players.forEach((player: string) => {
 		const playerElement = document.createElement("span");
@@ -32,16 +68,24 @@ document.addEventListener("statusUpdate", (event: any) => {
 	});
 });
 
-serverToggle.addEventListener("click", () => {
-	if (!serverStatus.enabled) {
-		socket.send(JSON.stringify({ event: "start" }));
-	} else {
-		socket.send(JSON.stringify({ event: "stop" }));
-	}
+document.querySelectorAll<HTMLButtonElement>(".serverToggle").forEach((button) => {
+	button.addEventListener("click", () => {
+		switch (button.dataset.behavior) {
+			case "start":
+				socket.send(JSON.stringify({ event: "start" }));
+				break;
+			case "stop":
+				socket.send(JSON.stringify({ event: "stop", immediate: button.dataset.immediate == "true" }));
+				break;
+			case "restart":
+				socket.send(JSON.stringify({ event: "restart", immediate: button.dataset.immediate == "true" }));
+				break;
+		}
+	});
 });
 
-const getWorldSize = async () => {
-	const data: WorldSize = await (await fetch("/api/worldSize")).json();
+const getWorldSize = async (refresh = false) => {
+	const data: WorldSize = await (await fetch(`/api/worldSize?refresh=${refresh}`)).json();
 
 	const formatBytes = (bytes: number) => {
 		if (bytes === 0) return "0 Bytes";
@@ -79,7 +123,15 @@ document.querySelector<HTMLButtonElement>("#worldSize button")?.addEventListener
 	const container = document.querySelector("#worldSize section") as HTMLDivElement;
 	container.classList.add("loading");
 	container.innerHTML = '<div class="spinner"></div>';
-	await getWorldSize();
+	await getWorldSize(true);
 });
 
 getWorldSize();
+
+document.addEventListener("click", (event) => {
+	if ((event.target as HTMLElement).id == "optionsToggle" || (event.target as HTMLElement).parentElement?.id == "optionsToggle") {
+		document.querySelector("#optionsContent")?.classList.toggle("visible");
+	} else {
+		document.querySelector("#optionsContent")?.classList.remove("visible");
+	}
+});

@@ -20,9 +20,69 @@ main > div {
 	grid-area: 1 / 1 / 2 / 3;
 }
 
-#dashboardStatus h2 {
-	font-size: 1.4rem;
-	font-weight: 500;
+#dashboardStatus section {
+	display: flex;
+	flex-direction: column;
+	justify-items: center;
+	height: 70%;
+}
+
+#dashboardStatus section div {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	height: 30%;
+}
+
+#dashboardStatus span {
+	font-size: 2rem;
+}
+
+#dashboardStatus #btnGroup {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	height: 10%;
+}
+
+#dashboardStatus #btnGroup > div {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 0.4rem;
+	border: 1px var(--danger) solid;
+}
+
+#dashboardStatus #btnGroup > div > button:first-child {
+	border-radius: 0.4rem 0px 0px 0.4rem;
+}
+
+#dashboardStatus #btnGroup #optionsToggle {
+	border-radius: 0px 0.4rem 0.4rem 0px;
+	width: 24px !important;
+	min-width: 0;
+	padding: 2px;
+	height: 2rem;
+	border-left: 1px var(--lightPrimary) solid;
+}
+
+#optionsContent {
+	display: none;
+	position: absolute;
+	background-color: #f1f1f1;
+	min-width: 160px;
+	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+	z-index: 10;
+	padding: 8px;
+}
+
+.visible {
+	display: flex !important;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
 }
 
 #players {
@@ -120,10 +180,24 @@ main button:active {
 }
 
 main button:focus {
-	outline: var(--lightPrimary) solid;
+	outline: var(--primaryDark) solid;
 }
 
 main button:disabled {
 	filter: brightness(80%) grayscale(10%);
 	pointer-events: none;
+}
+
+button.danger {
+	background-color: var(--danger);
+	outline: var(--primary);
+}
+
+button.danger:hover,
+button.danger:active {
+	background-color: var(--dangerDark);
+}
+
+button.danger:focus {
+	outline: var(--primary) solid;
 }

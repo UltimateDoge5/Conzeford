@@ -24,24 +24,30 @@ socket.addEventListener("message", (event) => {
 
 			if (serverStatus.isStarting) {
 				document.dispatchEvent(new Event("serverStarting"));
-				serverStatusText.innerHTML = "Starting";
-				serverStatusLed.style.fill = "#ffdd00";
+				updateStatuses("#ffdd00", "Starting");
 			} else if (serverStatus.isStopping) {
 				document.dispatchEvent(new Event("serverStopping"));
-				serverStatusText.innerHTML = "Stopping";
-				serverStatusLed.style.fill = "#ffdd00";
+				updateStatuses("#ffdd00", "Stopping");
 			} else if (serverStatus.enabled) {
 				document.dispatchEvent(new Event("serverStart"));
-				serverStatusText.innerHTML = "Running";
-				serverStatusLed.style.fill = "#64BD3A";
+				updateStatuses("#64BD3A", "Running");
 			} else {
 				document.dispatchEvent(new Event("serverStop"));
-				serverStatusText.innerHTML = "Stopped";
-				serverStatusLed.style.fill = "#FB4747";
+				updateStatuses("#FB4747", "Stopped");
 			}
 			break;
 	}
 });
+
+const updateStatuses = (color: string, text: string) => {
+	document.querySelectorAll<SVGAElement>(".statusLed circle").forEach((led) => {
+		led.style.fill = color;
+	});
+
+	document.querySelectorAll<HTMLSpanElement>(".statusText").forEach((span) => {
+		span.innerText = text;
+	});
+};
 
 document.querySelector(".navLink")?.addEventListener("click", (e) => {
 	const toggle = sidebar.style.width == "6rem";

@@ -7,7 +7,8 @@
 	--primaryDark: #0a5da6;
 	--lightPrimary: #e5e8ef;
 	--success: rgb(100, 189, 58);
-	--danger: rgb(251, 71, 71);
+	--danger: #fb4747;
+	--dangerDark: #fa2e2e;
 }
 
 body {
@@ -20,7 +21,7 @@ body {
 
 main {
 	position: relative;
-	padding: 4px;
+	padding: 8px;
 	left: 96px;
 	top: 80px;
 	box-sizing: border-box;

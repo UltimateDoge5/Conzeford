@@ -42,6 +42,10 @@ app.use(bodyParser.json());
 app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
+app.get("/", (req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/index.html"));
+});
+
 app.get("/console", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/console.html"));
 });
@@ -54,7 +58,7 @@ app.use("/api", settingsRouter);
 app.use("/api", serverRouter);
 
 app.get("*", (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "/web/index.html"));
+	res.redirect("/");
 });
 
 const server = app.listen(process.env.PORT || 5454, () => {
@@ -114,7 +118,10 @@ wsServer.on("connection", async (socket) => {
 				instance.start();
 				break;
 			case "stop":
-				instance.stop();
+				instance.stop(dataParsed.immediate);
+				break;
+			case "restart":
+				instance.restart(dataParsed.immediate);
 				break;
 		}
 	});

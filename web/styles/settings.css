@@ -74,7 +74,7 @@ form button[type="submit"] {
 }
 
 form button[type="submit"]:focus {
-	outline: var(--lightPrimary) solid;
+	outline: var(--primaryDark) solid;
 }
 
 form button[type="reset"] {
@@ -139,11 +139,11 @@ input {
 }
 
 input[type="text"] {
-	width: 100%;
+	width: 95%;
 }
 
 input[type="number"] {
-	width: 6%;
+	width: 8%;
 }
 
 .checkbox {

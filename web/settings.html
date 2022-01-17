@@ -14,11 +14,11 @@
 		<nav id="navbar">
 			<h1>Settings</h1>
 			<h2>Status</h2>
-			<div id="status">
-				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<div>
+				<svg class="statusLed" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<circle cx="10" cy="10" r="10" fill="#FB4747" />
 				</svg>
-				<span>Stopped</span>
+				<span class="statusText">Stopped</span>
 			</div>
 		</nav>
 		<nav id="sidebar" style="width: 6rem">
@@ -89,7 +89,7 @@
 					</p>
 				</div>
 
-				<form id="shutdownDelay" name="shutdownDelay">
+				<form id="shutdownDelay" class="togglable" name="shutdownDelay">
 					<h2>Shutdown delay settings</h2>
 					<hr />
 					<div id="formGroup">

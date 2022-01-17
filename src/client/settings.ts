@@ -18,6 +18,16 @@ fetch("/api/settings")
 		//Copy the object without the reference
 		clientSettings = JSON.parse(JSON.stringify(fetchedSettings));
 		settings = fetchedSettings;
+
+		document.querySelectorAll("form").forEach((form) => {
+			if (!form.classList.contains("togglable")) return;
+
+			form.querySelectorAll("input").forEach((input) => {
+				if (input.name == "enabled") return;
+
+				input.disabled = !settings[form.name].enabled;
+			});
+		});
 	});
 
 //For some reason sometimes buttons aren't disabled on reload
@@ -26,17 +36,19 @@ document.querySelectorAll<HTMLButtonElement>("#btnGroup [type='submit']").forEac
 });
 
 document.querySelectorAll("form").forEach((form: HTMLFormElement) => {
-	form.addEventListener("submit", async (event: Event) => {
+	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
-		const data: any = { [form.id]: {} }; //Same here, not asigning the type to settings to avoid non-indexable errors
+		const data: any = { [form.name]: {} }; //Same here, not asigning the type to settings to avoid non-indexable errors
 
 		form.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 			if (input.type === "checkbox") {
-				data[form.id][input.name] = input.checked;
+				data[form.name][input.name] = input.checked;
 			} else if (input.type === "number") {
-				data[form.id][input.name] = parseFloat(input.value);
+				const parse = parseFloat(input.value);
+				if (isNaN(parse)) return;
+				data[form.name][input.name] = parse;
 			} else {
-				data[form.id][input.name] = input.value;
+				data[form.name][input.name] = input.value;
 			}
 		});
 
@@ -49,6 +61,8 @@ document.querySelectorAll("form").forEach((form: HTMLFormElement) => {
 			form.querySelectorAll<HTMLButtonElement>("#btnGroup button").forEach((button) => {
 				button.disabled = true;
 			});
+
+			window.onbeforeunload = null;
 		} else {
 			(form.querySelector("#notification") as HTMLSpanElement).innerText = "Failed to save settings!";
 			(form.querySelector("#notification") as HTMLSpanElement).style.color = "var(--danger)";
@@ -60,18 +74,11 @@ document.querySelectorAll("form").forEach((form: HTMLFormElement) => {
 	});
 });
 
-(document.querySelector("#shutdownDelayEnabled") as HTMLInputElement).addEventListener("change", (event: Event) => {
-	document.querySelectorAll<HTMLInputElement>("#shutdownDelay input").forEach((input) => {
-		if (input == event.target) return;
-		input.disabled = !(event.target as HTMLInputElement).checked;
-	});
-});
-
-const getParentRecursive = (element: HTMLElement, selector: string): HTMLElement => {
+const getParentRecursive = <Element>(element: HTMLElement, selector: string): Element => {
 	if (element.parentElement?.tagName.toLocaleLowerCase() == selector.toLocaleLowerCase()) {
-		return element.parentElement as HTMLElement;
+		return element.parentElement as unknown as Element;
 	} else {
-		return getParentRecursive(element.parentElement!, selector);
+		return getParentRecursive<Element>(element.parentElement!, selector);
 	}
 };
 
@@ -136,14 +143,14 @@ const objectDiffrence = (first: any, second: any): Object => {
 
 document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 	input.addEventListener("change", async (event: Event) => {
-		const form = getParentRecursive(event.target as HTMLElement, "form");
+		const form: HTMLFormElement = getParentRecursive<HTMLFormElement>(event.target as HTMLElement, "form");
 
 		if (input.type === "checkbox") {
-			clientSettings[form.id][input.name] = input.checked;
+			clientSettings[form.name][input.name] = input.checked;
 		} else if (input.type === "number") {
-			clientSettings[form.id][input.name] = parseFloat(input.value);
+			clientSettings[form.name][input.name] = parseFloat(input.value);
 		} else {
-			clientSettings[form.id][input.name] = input.value;
+			clientSettings[form.name][input.name] = input.value;
 		}
 
 		if (Object.keys(objectDiffrence(clientSettings, settings)).length > 0) {
@@ -162,5 +169,15 @@ document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 
 			window.onbeforeunload = null;
 		}
+
+		document.querySelectorAll("form").forEach((form) => {
+			if (!form.classList.contains("togglable")) return;
+
+			form.querySelectorAll("input").forEach((input) => {
+				if (input.name == "enabled") return;
+
+				input.disabled = !clientSettings[form.name].enabled;
+			});
+		});
 	});
 });

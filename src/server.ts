@@ -23,10 +23,10 @@ class McServer extends EventEmitter {
 		}
 	}
 
-	stop = () => {
+	stop = (immediate = false) => {
 		const shutdownDelay = settingsManager.settings.shutdownDelay;
 		if (this.status.enabled && !this.status.isStopping) {
-			if (shutdownDelay.enabled) {
+			if (shutdownDelay.enabled && !immediate) {
 				this.process.stdin.write(`say ${shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString())}\n`);
 
 				setTimeout(() => {
@@ -115,6 +115,22 @@ class McServer extends EventEmitter {
 		return false;
 	};
 
+	restart = (immediate = false) => {
+		if (this.status.enabled && !this.status.isStarting && !this.status.isStopping) {
+			this.stop(immediate);
+
+			const onIdle = async () => {
+				if (!this.status.enabled && !this.status.isStarting && !this.status.isStopping) {
+					await this.start();
+				}
+
+				instance.off("status", onIdle);
+			};
+
+			instance.on("status", onIdle);
+		}
+	};
+
 	executeCommand = (command: string) => {
 		if (this.status.enabled && !this.status.isStopping && !this.status.isStarting) {
 			this.emit("stdout", Buffer.from(`> ${command}\n`));
@@ -122,8 +138,8 @@ class McServer extends EventEmitter {
 		}
 	};
 
-	getWorldSize = async () => {
-		if (this.worldSize != undefined && this.worldSize.worlds.length > 0) return this.worldSize;
+	getWorldSize = async (refresh = false) => {
+		if (this.worldSize != undefined && this.worldSize.worlds.length > 0 && !refresh) return this.worldSize;
 
 		const worldSize: WorldSize = { worlds: [], date: new Date().getTime() };
 
@@ -203,8 +219,8 @@ class McServer extends EventEmitter {
 
 export const serverRouter = Router();
 
-serverRouter.get("/worldSize", async (_req: Request, res: Response) => {
-	const worldSize = await instance.getWorldSize();
+serverRouter.get("/worldSize", async (req: Request, res: Response) => {
+	const worldSize = await instance.getWorldSize(req.query.refresh == "true");
 	res.status(200).json(worldSize);
 });
 

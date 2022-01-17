@@ -1,5 +1,6 @@
 interface Payload {
 	event: socketEvent;
+	immediate: boolean;
 	command: any;
 }
 
@@ -36,4 +37,4 @@ interface TreeFolder {
 	size: number;
 }
 
-type socketEvent = "status" | "command" | "start" | "stop";
+type socketEvent = "status" | "command" | "start" | "stop" | "restart";
