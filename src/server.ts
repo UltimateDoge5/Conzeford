@@ -106,6 +106,7 @@ class McServer extends EventEmitter {
 			this.process.stdout.addListener("close", () => {
 				this.status.enabled = false;
 				this.status.isStopping = false;
+				this.status.startDate = null;
 				this.emit("status", this.status);
 			});
 
