@@ -152,7 +152,7 @@ instance.addListener("status", (status: serverStatus) => {
 
 const onExit = () => {
 	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "status", status: { isEnabled: false, isStarting: false, isStopping: false } }));
+		client.send(JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } }));
 	});
 
 	instance.stop();

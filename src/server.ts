@@ -122,9 +122,8 @@ class McServer extends EventEmitter {
 			const onIdle = async () => {
 				if (!this.status.enabled && !this.status.isStarting && !this.status.isStopping) {
 					await this.start();
+					instance.off("status", onIdle);
 				}
-
-				instance.off("status", onIdle);
 			};
 
 			instance.on("status", onIdle);
