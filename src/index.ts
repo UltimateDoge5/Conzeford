@@ -55,6 +55,14 @@ app.get("/settings", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/settings.html"));
 });
 
+app.get("/logs", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/logs.html"));
+});
+
+app.get("/logs/:logId", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/logViewer.html"));
+});
+
 app.use("/api", settingsRouter, serverRouter, logsRouter);
 
 app.get("*", (_req: Request, res: Response) => {

@@ -1,0 +1,55 @@
+main {
+	overflow: auto;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: #262626;
+	padding: 8px;
+}
+
+th {
+	background-color: #262626;
+	color: white;
+	padding: 8px;
+	font-size: 1.2em;
+}
+
+th:last-child {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+}
+
+tr,
+td {
+	border: 1px var(--lightPrimary) solid;
+}
+
+.log {
+	border: 1px var(--lightPrimary) solid;
+	background-color: #262626;
+	height: 3rem;
+	text-align: center;
+}
+
+.log a {
+	color: var(--primary);
+}
+
+.log:nth-child(even) {
+	background-color: #2b2b2b;
+}
+
+button {
+	background-color: inherit;
+	color: white;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.15s ease-in-out;
+}
