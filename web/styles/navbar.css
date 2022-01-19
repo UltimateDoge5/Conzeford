@@ -45,3 +45,25 @@
 #navbar div svg {
 	display: inline;
 }
+
+@media screen and (max-width: 500px) {
+	#navbar {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+	}
+
+	#navbar h1 {
+		font-size: 32px;
+	}
+
+	#navbar h2 {
+		display: none;
+	}
+
+	nav div {
+		margin: 0 !important;
+		width: unset !important;
+	}
+}

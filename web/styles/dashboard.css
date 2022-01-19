@@ -18,12 +18,16 @@ main > div {
 
 #dashboardStatus {
 	grid-area: 1 / 1 / 2 / 3;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: start;
 }
 
 #dashboardStatus section {
 	display: flex;
 	flex-direction: column;
-	justify-items: center;
+	justify-content: center;
 	height: 70%;
 }
 
@@ -200,4 +204,14 @@ button.danger:active {
 
 button.danger:focus {
 	outline: var(--primary) solid;
+}
+
+@media screen and (max-width: 1250px) {
+	.world p {
+		text-align: center;
+	}
+
+	.world h2 {
+		font-size: 1rem;
+	}
 }
