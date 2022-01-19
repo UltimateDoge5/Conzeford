@@ -67,8 +67,6 @@ class McServer extends EventEmitter {
 			this.emit("status", this.status);
 			this.status.startDate = new Date();
 
-			await truncate(join(process.env.SERVER_DIR as string, "logs/latest.log"), 0);
-
 			this.process.stdout.setEncoding("utf8");
 			this.process.stdout.addListener("data", (data: Buffer) => {
 				this.emit("stdout", data);
