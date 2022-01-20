@@ -41,8 +41,7 @@ logsRouter.get("/logs", async (req: Request, res: Response) => {
 logsRouter.delete("/logs", async (req: Request, res: Response) => {
 	const { log } = req.body;
 
-	console.log(join(process.env.SERVER_DIR as string, "logs", log + ".log.gz"));
-	if (logs != undefined && logs.length > 0) {
+	if (log != undefined) {
 		if ((await stat(join(process.env.SERVER_DIR as string, "logs", log + ".log.gz")), { throwIfNoEntry: false }) != undefined) {
 			await unlink(join(process.env.SERVER_DIR as string, "logs", log + ".log.gz"));
 		} else if ((await stat(join(process.env.SERVER_DIR as string, "logs", log + ".log")), { throwIfNoEntry: false }) != undefined) {
@@ -52,7 +51,14 @@ logsRouter.delete("/logs", async (req: Request, res: Response) => {
 		}
 
 		const updatedLogs = await readdir(join(process.env.SERVER_DIR as string, "logs"));
-		res.status(200).json({ updatedLogs });
+
+		let logs: Log[] = [];
+
+		for (const log of updatedLogs) {
+			const logsStats = await stat(join(process.env.SERVER_DIR as string, "logs", log));
+			logs.push({ name: log.replace(/(\.log)|(\.gz)/g, ""), creationDate: logsStats.birthtime.getTime() });
+		}
+		res.json({ logs });
 	} else {
 		res.sendStatus(400);
 	}

@@ -10,7 +10,11 @@ fetch("/api/logs")
 
 		document.querySelectorAll<HTMLButtonElement>(".delete").forEach(async (button) => {
 			button.addEventListener("click", async (event) => {
-				const response = await fetch(`/api/logs/${button.dataset.log}`, { method: "DELETE" });
+				const response = await fetch(`/api/logs`, {
+					method: "DELETE",
+					body: JSON.stringify({ log: button.dataset.log }),
+					headers: { "Content-Type": "application/json" }
+				});
 
 				if (response.status == 200) {
 					if (document.querySelector<HTMLButtonElement>("#sort")?.style.transform == "rotate(180deg)") {
@@ -19,6 +23,7 @@ fetch("/api/logs")
 						logs = sortAscending((await response.json()).logs);
 					}
 
+					document.querySelectorAll(".log").forEach((log) => log.remove());
 					displayLogs(logs);
 				}
 			});
