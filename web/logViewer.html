@@ -7,12 +7,12 @@
 		<link rel="stylesheet" href="/styles/style.css" />
 		<link rel="stylesheet" href="/styles/navbar.css" />
 		<link rel="stylesheet" href="/styles/sidebar.css" />
-		<link rel="stylesheet" href="/styles/settings.css" />
+		<link rel="stylesheet" href="/styles/logs.css" />
 		<title>Settings</title>
 	</head>
 	<body>
 		<nav id="navbar">
-			<h1>Logs</h1>
+			<h1>Log</h1>
 			<h2>Status</h2>
 			<div>
 				<svg class="statusLed" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -92,7 +92,25 @@
 			</ul>
 		</nav>
 
-		<main></main>
+		<main>
+			<div id="logViewer">
+				<div>
+					<span id="name">Name: N/A</span>
+					<span id="date">Creation date: N/A</span>
+					<button id="delete" title="Delte log">
+						<svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px" fill="white" viewBox="0 0 20 20" fill="currentColor">
+							<path
+								fill-rule="evenodd"
+								d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+						Delete log
+					</button>
+				</div>
+				<section></section>
+			</div>
+		</main>
 	</body>
 	<script src="/scripts/client.js"></script>
 	<script src="/scripts/logViewer.js"></script>
