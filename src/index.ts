@@ -10,6 +10,7 @@ import { statSync, writeFileSync } from "fs";
 import chalk from "chalk";
 import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
+import logsRouter from "./logs";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
@@ -56,8 +57,15 @@ app.get("/settings", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/settings.html"));
 });
 
-app.use("/api", settingsRouter);
-app.use("/api", serverRouter);
+app.get("/logs", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/logs.html"));
+});
+
+app.get("/logs/:logId", async (_req: Request, res: Response) => {
+	res.sendFile(join(dirname(__dirname), "web/logViewer.html"));
+});
+
+app.use("/api", settingsRouter, serverRouter, logsRouter);
 
 app.get("*", (_req: Request, res: Response) => {
 	res.redirect("/");
@@ -76,7 +84,7 @@ server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) =>
 wsServer.on("connection", async (socket) => {
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
-	if (instance.status.enabled || instance.status.isStarting) {
+	if (instance.status.enabled && !instance.status.isStarting) {
 		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
 		const logs = log.split("\n");
 

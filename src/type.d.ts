@@ -37,4 +37,9 @@ interface TreeFolder {
 	size: number;
 }
 
+interface Log {
+	name: string;
+	creationDate: number;
+}
+
 type socketEvent = "status" | "command" | "start" | "stop" | "restart";
