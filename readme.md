@@ -14,19 +14,20 @@ After the initial setup of the application, basic things like starting/stopping 
 
 The Minecraft server itself is started as a java process managed by the app. The application communicates with the browser via WebSockets and REST Apis.
 
-The method of detection of the server events and their disadvantages are described [here](#spoofing-the-detecion-of-server-events)
+The method for detection of the server events and the is's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
 
 ## Features
 
-This is the list of current and planned features:
+This those are some of current and planned features:
 
 -   [x] State management
--   [x] Console
+-   [x] Console interface
 -   [x] Aplication settings
 -   [ ] Log reader
--   [ ] [Plugin based event detection](#spoofing-the-detecion-of-server-events)
+-   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
 -   [ ] Password protection
 
+The exact list can be found [here](https://github.com/UltimateDoge5/Conzeford/projects/1).  
 Conzeford also has its own configurable features like shutdown delay - before a shutdown a message about it is sent to the players. And a lot of smaller features.
 
 ## Setup
@@ -40,7 +41,8 @@ The config looks like this:
 ```
 SERVER_JAR="server_jar_name_here"
 SERVER_DIR="directory_of_server_jar_here"
-SERVER_AUTOSTART=false
+SERVER_AUTOSTART=false #true or false
+PORT=port #Not required
 ```
 
 Replace the placeholders with the correct values.
@@ -56,8 +58,7 @@ It's not my priority for now, as I want to finish other features and it would in
 
 ## Compiling to binary
 
-If you made some changes of your own to the application and wanted to compile it to a binary you can do so by running:
-
-Using npm `npm run build` or using yarn `yarn build`
+If you made some changes of your own to the application and want to compile it to a binary, you have to install the [pkg](https://www.npmjs.com/package/pkg) package.
+After installing pkg run `npm run build` or `yarn build`.
 
 It will compile the application to a binary and put it in the dist folder.

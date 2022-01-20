@@ -6,7 +6,7 @@ import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
-import { statSync } from "fs";
+import { statSync, writeFileSync } from "fs";
 import chalk from "chalk";
 import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
@@ -16,6 +16,8 @@ const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
 try {
 	if (result.error) {
+		writeFileSync("config.env", 'SERVER_JAR="server_jar_name_here"\nSERVER_DIR="directory_of_server_jar_here"\nSERVER_AUTOSTART=false');
+		console.log(chalk.yellow("config.env file not found - creating a new one. Please fill it with the correct values."));
 		throw new Error("No config.env file found.");
 	} else if (process.env.SERVER_JAR == undefined) {
 		throw new Error("SERVER_JAR environment variable not set.");
@@ -162,8 +164,6 @@ const onExit = () => {
 	wsServer.clients.forEach((client) => {
 		client.send(JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } }));
 	});
-
-	instance.stop();
 };
 
 process.on("exit", onExit);
