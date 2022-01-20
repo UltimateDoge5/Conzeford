@@ -164,48 +164,6 @@ main div h1 {
 	align-items: center;
 }
 
-main button {
-	border-radius: 0.2rem;
-	padding: 8px 16px;
-	min-width: 5rem;
-	transition: all 0.1s ease-in-out;
-	background-color: var(--primary);
-	border: none;
-	color: white;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 8px;
-}
-
-main button:hover,
-main button:active {
-	background-color: var(--primaryDark);
-}
-
-main button:focus {
-	outline: var(--primaryDark) solid;
-}
-
-main button:disabled {
-	filter: brightness(80%) grayscale(10%);
-	pointer-events: none;
-}
-
-button.danger {
-	background-color: var(--danger);
-	outline: var(--primary);
-}
-
-button.danger:hover,
-button.danger:active {
-	background-color: var(--dangerDark);
-}
-
-button.danger:focus {
-	outline: var(--primary) solid;
-}
-
 @media screen and (max-width: 1250px) {
 	.world p {
 		text-align: center;

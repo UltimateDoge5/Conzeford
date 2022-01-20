@@ -15,7 +15,7 @@ fetch(`/api/log/${window.location.pathname.split("/")[2]}`).then(async (fetchedL
 	}
 });
 
-document.querySelector("#delete")?.addEventListener("click", async (event) => {
+document.querySelector("#delete")?.addEventListener("click", async () => {
 	const response = await fetch(`/api/logs`, {
 		method: "DELETE",
 		body: JSON.stringify({ log: window.location.pathname.split("/")[2] }),

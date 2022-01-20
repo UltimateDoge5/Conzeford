@@ -60,44 +60,6 @@ form > h2 {
 	width: 100%;
 }
 
-form button {
-	border-radius: 0.4rem;
-	padding: 8px 16px;
-	min-width: 5rem;
-	transition: all 0.1s ease-in-out;
-}
-
-form button[type="submit"] {
-	background-color: var(--primary);
-	border: none;
-	color: white;
-}
-
-form button[type="submit"]:focus {
-	outline: var(--primaryDark) solid;
-}
-
-form button[type="reset"] {
-	background-color: inherit;
-	border: 1px var(--lightPrimary) solid;
-	color: var(--primary);
-}
-
-form button[type="submit"]:hover,
-form button[type="submit"]:active {
-	background-color: var(--primaryDark);
-}
-
-form button[type="reset"]:hover,
-form button[type="reset"]:active {
-	background-color: var(--lightPrimary);
-}
-
-form button:disabled {
-	filter: brightness(80%) grayscale(10%);
-	pointer-events: none;
-}
-
 form div:last-child {
 	display: flex;
 }

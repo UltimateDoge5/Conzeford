@@ -119,12 +119,12 @@
 				</section>
 
 				<div id="btnGroup">
-					<button data-behavior="start" class="serverToggle">Start</button>
+					<button data-behavior="start" class="button serverToggle">Start</button>
 					<div>
-						<button data-behavior="stop" id="server" class="serverToggle danger">Stop</button>
+						<button data-behavior="stop" id="server" class="button danger serverToggle">Stop</button>
 
 						<div>
-							<button id="optionsToggle" class="danger">
+							<button id="optionsToggle" class="button danger" title="Show more options">
 								<svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px" viewBox="0 0 20 20" fill="currentColor">
 									<path
 										fill-rule="evenodd"
@@ -133,12 +133,17 @@
 									/>
 								</svg>
 							</button>
-							<div id="optionsContent">
-								<button class="serverToggle danger" data-behavior="stop" data-immediate="true" title="Stop the server wihtout a delay">
+							<div id="optionsContent" aria-hidden="true">
+								<button class="button danger serverToggle" data-behavior="stop" data-immediate="true" title="Stop the server wihtout a delay">
 									Stop instantly
 								</button>
-								<button class="serverToggle danger" data-behavior="restart" title="Restart the server.">Restart</button>
-								<button class="serverToggle danger" data-behavior="restart" data-immediate="true" title="Restart the server wihtout a delay">
+								<button class="button danger serverToggle" data-behavior="restart" title="Restart the server.">Restart</button>
+								<button
+									class="button danger serverToggle"
+									data-behavior="restart"
+									data-immediate="true"
+									title="Restart the server wihtout a delay"
+								>
 									Restart instantly
 								</button>
 							</div>
@@ -177,7 +182,7 @@
 				<section class="loading">
 					<div class="spinner dark"></div>
 				</section>
-				<button style="margin: auto">
+				<button class="button" style="margin: auto">
 					<svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px" viewBox="0 0 20 20" fill="currentColor">
 						<path
 							fill-rule="evenodd"

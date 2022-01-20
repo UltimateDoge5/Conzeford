@@ -131,7 +131,9 @@ getWorldSize();
 document.addEventListener("click", (event) => {
 	if ((event.target as HTMLElement).id == "optionsToggle" || (event.target as HTMLElement).parentElement?.id == "optionsToggle") {
 		document.querySelector("#optionsContent")?.classList.toggle("visible");
+		document.querySelector("#optionsContent")!.ariaHidden = "false";
 	} else {
 		document.querySelector("#optionsContent")?.classList.remove("visible");
+		document.querySelector("#optionsContent")!.ariaHidden = "true";
 	}
 });

@@ -30,15 +30,67 @@ main {
 	background-color: var(--lightPrimary);
 }
 
-button:disabled {
-	opacity: 0.75;
-	cursor: not-allowed;
-	pointer-events: none;
-}
-
 input:disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+/* Buttons - Primary*/
+.button {
+	border-radius: 0.4rem;
+	padding: 8px 16px;
+	min-width: 5rem;
+	transition: all 0.1s ease-in-out;
+	background-color: var(--primary);
+	border: none;
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+}
+
+.button[type="submit"]:hover,
+.button[type="submit"]:active {
+	background-color: var(--primaryDark);
+}
+
+.button:focus {
+	outline: var(--primaryDark) solid;
+}
+
+button button:disabled {
+	filter: brightness(80%) grayscale(10%);
+	pointer-events: none;
+}
+
+/* Buttons - Secondary*/
+
+.button.secondary {
+	background-color: inherit;
+	border: 1px var(--lightPrimary) solid;
+	color: var(--primary);
+}
+
+.button.secondary:hover,
+.button.secondary:active {
+	background-color: var(--lightPrimary);
+}
+
+/* Buttons - Danger*/
+
+.button.danger {
+	background-color: var(--danger);
+	outline: var(--primary);
+}
+
+.button.danger:hover,
+.button.danger:active {
+	background-color: var(--dangerDark);
+}
+
+.button.danger:focus {
+	outline: var(--primary) solid;
 }
 
 /*Spinner yoinked from https://loading.io/css/*/

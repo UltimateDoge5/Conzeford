@@ -84,31 +84,6 @@ button {
 	box-sizing: border-box;
 }
 
-#logViewer button {
-	border-radius: 0.2rem;
-	padding: 8px 16px;
-	min-width: 5rem;
-	transition: all 0.1s ease-in-out;
-	background-color: var(--danger);
-
-	border: none;
-	color: white;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 8px;
-}
-
-#logViewer button:hover,
-#logViewer button:active {
-	background-color: var(--dangerDark);
-	outline: var(--primary);
-}
-
-#logViewer button:focus {
-	outline: var(--primary) solid;
-}
-
 .notFound {
 	display: flex;
 	align-items: center;
