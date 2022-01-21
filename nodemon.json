@@ -3,6 +3,7 @@
         "web/*",
         "build/client/*",
         "src/client/*",
-        "settings.json"
+        "settings.json",
+        "cache/*"
     ]
 }

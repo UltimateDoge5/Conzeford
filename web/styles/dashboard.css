@@ -104,6 +104,7 @@ main > div {
 	grid-template-columns: repeat(2, 1fr);
 	width: 100%;
 	gap: 8px 8px;
+	overflow: auto;
 }
 
 #players section span {
@@ -162,6 +163,18 @@ main div h1 {
 	display: flex !important;
 	justify-content: center;
 	align-items: center;
+}
+
+.player {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-bottom: 1px var(--lightPrimary) solid;
+	gap: 8px;
+}
+
+.player img {
+	width: 32px;
 }
 
 @media screen and (max-width: 1250px) {

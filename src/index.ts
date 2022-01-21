@@ -6,11 +6,12 @@ import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
-import { statSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, statSync, writeFileSync } from "fs";
 import chalk from "chalk";
 import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
-import logsRouter from "./logs";
+import logsRouter, { exists } from "./logs";
+import PlayerCache, { headsRouter } from "./playerCache";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
@@ -40,6 +41,8 @@ const wsServer = new Server({ noServer: true });
 
 export const settingsManager = new SettingsManager();
 
+export const uuidCache = new PlayerCache();
+
 app.use(bodyParser.json());
 
 app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
@@ -65,10 +68,10 @@ app.get("/logs/:logId", async (_req: Request, res: Response) => {
 	res.sendFile(join(dirname(__dirname), "web/logViewer.html"));
 });
 
-app.use("/api", settingsRouter, serverRouter, logsRouter);
+app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
 app.get("*", (_req: Request, res: Response) => {
-	res.redirect("/");
+	res.sendStatus(404);
 });
 
 const server = app.listen(process.env.PORT || 5454, () => {

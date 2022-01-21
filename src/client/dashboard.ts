@@ -64,6 +64,14 @@ document.addEventListener("statusUpdate", (event: any) => {
 	event.detail.players.forEach((player: string) => {
 		const playerElement = document.createElement("span");
 		playerElement.innerText = player;
+		playerElement.classList.add("player");
+
+		const playerHead = document.createElement("img");
+		playerHead.src = `/api/playerHead/${player}`;
+		playerHead.alt = `${player}'s head`;
+		playerHead.classList.add("head");
+
+		playerElement.prepend(playerHead);
 		playersContainer.appendChild(playerElement);
 	});
 });

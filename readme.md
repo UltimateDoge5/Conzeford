@@ -23,7 +23,7 @@ This those are some of current and planned features:
 -   [x] State management
 -   [x] Console interface
 -   [x] Aplication settings
--   [ ] Log reader
+-   [x] Log reader
 -   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
 -   [ ] Password protection
 

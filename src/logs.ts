@@ -65,7 +65,7 @@ logsRouter.delete("/logs", async (req: Request, res: Response) => {
 	}
 });
 
-const exists = async (path: string) => {
+export const exists = async (path: string) => {
 	try {
 		await access(path);
 		return true;
