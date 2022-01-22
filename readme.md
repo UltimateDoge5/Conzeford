@@ -56,7 +56,13 @@ To combat this I've come up with an easy solution - a plugin. It is not only goi
 
 It's not my priority for now, as I want to finish other features and it would involve major server code changes. But it will happen eventually. The plugin's code will be also open source and won't collect unnecessary data.
 
-## Compiling to binary
+## Making changes and compiling to binary
+
+Firts things first - install the dependencies. You can use `npm install` or `yarn`.
+You also need to have Typescript installed.
+
+To complie the typescript files to javascript, start the Typescript watch processes on the src and web/src.
+Remeber to run the node server after that.
 
 If you made some changes of your own to the application and want to compile it to a binary, you have to install the [pkg](https://www.npmjs.com/package/pkg) package.
 After installing pkg run `npm run build` or `yarn build`.

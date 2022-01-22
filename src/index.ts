@@ -49,23 +49,23 @@ app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
 app.get("/", (req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/index.html"));
+	res.sendFile(join(dirname(__dirname), "web/pages/index.html"));
 });
 
 app.get("/console", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/console.html"));
+	res.sendFile(join(dirname(__dirname), "web/pages/console.html"));
 });
 
 app.get("/settings", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/settings.html"));
+	res.sendFile(join(dirname(__dirname), "web/pages/settings.html"));
 });
 
 app.get("/logs", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/logs.html"));
+	res.sendFile(join(dirname(__dirname), "web/pages/logs.html"));
 });
 
 app.get("/logs/:logId", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/logViewer.html"));
+	res.sendFile(join(dirname(__dirname), "web/pages/logViewer.html"));
 });
 
 app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
