@@ -2,8 +2,10 @@ import { Request, Response, Router } from "express";
 import { readdir, readFile, rename, stat, unlink, writeFile, access } from "fs/promises";
 import { join } from "path";
 import { ungzip } from "node-gzip";
+import { settingsManager } from ".";
 
 const logsRouter = Router();
+export let expirationInterval: NodeJS.Timer;
 
 logsRouter.get("/logs", async (req: Request, res: Response) => {
 	const logsRaw = await readdir(join(process.env.SERVER_DIR as string, "logs"));
@@ -74,4 +76,35 @@ export const exists = async (path: string) => {
 	}
 };
 
+export const checkForLogExpirtion = async () => {
+	const logsRaw = await readdir(join(process.env.SERVER_DIR as string, "logs"));
+
+	for (const log of logsRaw) {
+		const logsStats = await stat(join(process.env.SERVER_DIR as string, "logs", log));
+
+		if (logsStats.birthtime.getTime() + 1000 * 60 * 60 * 24 * settingsManager.settings.autoDelete.deleteAfter < Date.now()) {
+			await unlink(join(process.env.SERVER_DIR as string, "logs", log));
+		}
+	}
+};
+
+setTimeout(() => {
+	settingsManager.on("load", (settings) => {
+		if (settings.autoDelete.enabled) {
+			checkForLogExpirtion();
+			expirationInterval = setInterval(checkForLogExpirtion, 1000 * 60 * 60 * 24 * settingsManager.settings.autoDelete.deleteAfter);
+		}
+	});
+
+	settingsManager.on("update", (update) => {
+		if (update.oldSettings.autoDelete.enabled != update.settings.autoDelete.enabled) {
+			if (update.settings.autoDelete.enabled) {
+				checkForLogExpirtion();
+				expirationInterval = setInterval(checkForLogExpirtion, 1000 * 60 * 60 * 24);
+			} else {
+				clearInterval(expirationInterval);
+			}
+		}
+	});
+}, 2000);
 export default logsRouter;

@@ -143,6 +143,40 @@
 				</form>
 			</section>
 			<hr />
+			<section>
+				<div id="description">
+					<h1>Autodelete logs</h1>
+					<p>Automaticly delete logs after a certain amount of days have passed from their creation.</p>
+				</div>
+
+				<form id="autoDelete" class="togglable" name="autoDelete">
+					<h2>Autodelete settings</h2>
+					<hr />
+					<div id="formGroup">
+						<div style="padding: 8px">
+							<label for="autoDeletelogsEnabled">Enable autodelete</label>
+							<label class="checkbox">
+								<input type="checkbox" name="enabled" id="autoDeletelogsEnabled" autocomplete="off" />
+								<span class="check"></span>
+								<span class="label">Enabled</span>
+							</label>
+						</div>
+						<hr />
+						<div>
+							<label for="deleteAfter">Delete after (days)</label>
+							<input type="number" name="deleteAfter" id="deleteAfter" min="10" max="1095" value="30" autocomplete="off" disabled />
+						</div>
+					</div>
+					<hr />
+					<div>
+						<span id="notification"></span>
+						<div id="btnGroup">
+							<button class="button" type="submit" disabled>Save</button>
+							<button class="button secondary" type="reset">Reset</button>
+						</div>
+					</div>
+				</form>
+			</section>
 		</main>
 	</body>
 	<script src="/scripts/client.js"></script>

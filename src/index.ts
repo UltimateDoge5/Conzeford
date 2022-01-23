@@ -6,11 +6,11 @@ import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "fs";
+import { statSync, writeFileSync } from "fs";
 import chalk from "chalk";
 import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
-import logsRouter, { exists } from "./logs";
+import logsRouter from "./logs";
 import PlayerCache, { headsRouter } from "./playerCache";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
@@ -28,6 +28,7 @@ try {
 
 	//Throw if the path to the jar is not valid.
 	if (statSync(join(process.env.SERVER_DIR, process.env.SERVER_JAR), { throwIfNoEntry: false }) == undefined) {
+		console.log(chalk.red(`Your path ${join(process.env.SERVER_DIR, process.env.SERVER_JAR)} is not valid.`));
 		throw new Error("SERVER_DIR/SERVER_JAR is not a valid path.");
 	}
 } catch (error) {

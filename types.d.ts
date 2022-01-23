@@ -18,6 +18,10 @@ interface Settings {
 		delay: number;
 		message: string;
 	};
+	autoDelete: {
+		enabled: boolean;
+		deleteAfter: number;
+	};
 }
 
 interface WorldSize {

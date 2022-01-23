@@ -70,7 +70,7 @@ document.querySelectorAll("form").forEach((form: HTMLFormElement) => {
 
 		setTimeout(() => {
 			(form.querySelector("#notification") as HTMLSpanElement).innerText = "";
-		}, 7500);
+		}, 5000);
 	});
 });
 
@@ -170,9 +170,7 @@ document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 			window.onbeforeunload = null;
 		}
 
-		document.querySelectorAll("form").forEach((form) => {
-			if (!form.classList.contains("togglable")) return;
-
+		document.querySelectorAll<HTMLFormElement>("form.togglable").forEach((form) => {
 			form.querySelectorAll("input").forEach((input) => {
 				if (input.name == "enabled") return;
 

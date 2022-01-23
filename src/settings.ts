@@ -4,6 +4,8 @@ import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
 import { defaultsDeep } from "lodash";
+import { checkForLogExpirtion, expirationInterval } from "./logs";
+import { EventEmitter } from "stream";
 
 const settingsRouter = Router();
 
@@ -18,37 +20,43 @@ settingsRouter.post("/settings", async (req: Request, res: Response) => {
 	res.sendStatus(200);
 });
 
-export class SettingsManager {
+export class SettingsManager extends EventEmitter {
 	settings!: Settings;
 	static defaultSettings: Settings = {
 		shutdownDelay: {
 			enabled: true,
 			delay: 10,
 			message: "Server will shutdown in {delay} seconds."
+		},
+		autoDelete: {
+			enabled: false,
+			deleteAfter: 30
 		}
 	};
 
 	constructor() {
+		super();
 		this.loadFromFile();
 	}
 
 	async loadFromFile() {
 		try {
 			this.settings = JSON.parse((await readFile(join(process.cwd(), "settings.json"), "utf8")) || "{}");
-			return this.settings;
+			this.settings = defaultsDeep(this.settings, SettingsManager.defaultSettings);
+			this.emit("load", this.settings);
 		} catch (error: any) {
 			if (error.code === "ENOENT") {
 				console.log(chalk.yellow("No settings.json found. Creating a new one."));
 				this.saveToFile(SettingsManager.defaultSettings);
 				this.settings = SettingsManager.defaultSettings;
-				return this.settings;
+				this.emit("load", this.settings);
 			} else if (error instanceof SyntaxError) {
 				console.error(chalk.red("Error parsing settings.json: " + error.message));
 				console.log(chalk.yellow("Reverting to default settings."));
 
 				this.saveToFile(SettingsManager.defaultSettings);
 				this.settings = SettingsManager.defaultSettings;
-				return this.settings;
+				this.emit("load", this.settings);
 			} else {
 				console.error(chalk.red(new Error("Unexpected error occured when reading the settings.")));
 				throw error;
@@ -61,6 +69,7 @@ export class SettingsManager {
 	}
 
 	async updateSettings(settings: Settings) {
+		this.emit("update", { oldSettings: this.settings, newSettings: settings });
 		this.settings = settings;
 		await this.saveToFile(settings);
 	}
