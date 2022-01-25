@@ -65,6 +65,7 @@ export class SettingsManager extends EventEmitter {
 	}
 
 	async saveToFile(settings: Settings) {
+		console.log(join(process.cwd(), "settings.json"));
 		await writeFile(join(process.cwd(), "settings.json"), JSON.stringify(settings, null, 4), "utf8");
 	}
 
@@ -75,7 +76,6 @@ export class SettingsManager extends EventEmitter {
 	}
 }
 
-//This is a mess I know
 const filterSettings = (obj: any, keys: string[]): Object => {
 	return Object.keys(obj)
 		.filter((key) => keys.includes(key)) //Filter the keys - only keep the ones we want
