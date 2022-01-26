@@ -36,16 +36,18 @@ You can download the latest version from [here](https://github.com/UltimateDoge5
 
 Conzeford **_will not_** set up a Minecraft server for you so you need to do that yourself.
 After that create the config.env file in the same directory as the Conzeford binary.
+Config.env will also be generated on start, if its not present but requires filling the values.
 The config looks like this:
 
 ```
-SERVER_JAR="server_jar_name_here"
-SERVER_DIR="directory_of_server_jar_here"
+SERVER_JAR="server_jar_name_here" #required
+SERVER_DIR="directory_of_server_jar_here" #required
+JRE_FLAGS="your_jre_flags_here" #Here you can put you jre flags like -Xmx4G. Not required
 SERVER_AUTOSTART=false #true or false
 PORT=port #Not required
 ```
 
-Replace the placeholders with the correct values.
+Replace the placeholders with the correct values. If you have mutliple JRE flags they must be separated by a space.
 If you did everything correctly you should be able to start the server.
 
 ## Spoofing the detection of server events
@@ -61,10 +63,10 @@ It's not my priority for now, as I want to finish other features and it would in
 Firts things first - install the dependencies. You can use `npm install` or `yarn`.
 You also need to have Typescript installed.
 
-To complie the typescript files to javascript, start the Typescript watch processes on the src and web/src.
-Remeber to run the node server after that.
+To transpile the typescript files to javascript, start the Typescript watch processes on the src and web/src.
+Remeber to run the node server after that, to see your changes.
 
 If you made some changes of your own to the application and want to compile it to a binary, you have to install the [pkg](https://www.npmjs.com/package/pkg) package.
-After installing pkg run `npm run build` or `yarn build`.
+After installing pkg run `npm run build` or `yarn build`. It will start the transpilation processes and compile to the binary.
 
 It will compile the application to a binary and put it in the dist folder.

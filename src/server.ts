@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import EventEmitter from "events";
 import { Router, Request, Response } from "express";
-import { readdir, stat, truncate } from "fs/promises";
+import { readdir, stat, writeFile } from "fs/promises";
 import { join } from "path";
 import { instance, settingsManager } from ".";
 
@@ -50,15 +50,26 @@ class McServer extends EventEmitter {
 		if (!this.status.enabled && !this.status.isStarting) {
 			this.status.isStarting = true;
 
-			this.process = spawn("java", ["-jar", join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string), "--nogui"], {
-				cwd: process.env.SERVER_DIR
+			const JRE_FLAGS = process.env.JRE_FLAGS || "";
+
+			this.process = spawn(
+				"java",
+				[...JRE_FLAGS.split(" "), "-jar", join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string), "--nogui"],
+				{
+					cwd: process.env.SERVER_DIR
+				}
+			);
+
+			this.process.stderr.on("data", (data: Buffer) => {
+				this.emit("error", data.toString());
 			});
 
-			this.process.on("error", (error: any) => {
+			this.process.on("error", async (error: any) => {
 				if (error.code == "ENOENT") {
 					console.log(chalk.red(new Error("SERVER_DIR/SERVER_JAR is not a valid path.")));
 				} else {
 					console.log(chalk.red(new Error("Unexpected error occured when starting the server.")));
+					await writeFile(join(process.cwd(), "crashLog.txt"), `Unexpected error while staring the server:\n${error.toString()}`);
 					throw error;
 				}
 				process.exit(1);
