@@ -74,6 +74,14 @@ button {
 	font-size: 24px;
 }
 
+#logViewer div a {
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
 #logViewer section {
 	overflow: auto;
 	padding: 8px;

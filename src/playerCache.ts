@@ -60,7 +60,7 @@ class PlayerCache {
 			return await readFile(`cache/heads/${uuid}.png`);
 		}
 
-		const response = await axios.get<ArrayBuffer>(`https://crafatar.com/avatars/${uuid}`, { responseType: "arraybuffer" });
+		const response = await axios.get<ArrayBuffer>(`https://crafatar.com/avatars/${uuid}?overlay&scale=4`, { responseType: "arraybuffer" });
 
 		if (response.status !== 200) return undefined;
 		const buffer = Buffer.from(response.data);

@@ -8,7 +8,7 @@
 	--lightPrimary: #e5e8ef;
 	--success: rgb(100, 189, 58);
 	--danger: #fb4747;
-	--dangerDark: #fa2e2e;
+	--dangerDark: #f50505;
 }
 
 body {
@@ -50,8 +50,8 @@ input:disabled {
 	gap: 8px;
 }
 
-.button[type="submit"]:hover,
-.button[type="submit"]:active {
+.button:hover,
+.button:active {
 	background-color: var(--primaryDark);
 }
 

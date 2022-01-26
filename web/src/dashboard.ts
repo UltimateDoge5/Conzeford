@@ -69,6 +69,7 @@ document.addEventListener("statusUpdate", (event: any) => {
 		const playerHead = document.createElement("img");
 		playerHead.src = `/api/playerHead/${player}`;
 		playerHead.alt = `${player}'s head`;
+		playerHead.dataset.name = player;
 		playerHead.classList.add("head");
 
 		playerElement.prepend(playerHead);
@@ -144,4 +145,16 @@ document.addEventListener("click", (event) => {
 		document.querySelector("#optionsContent")?.classList.remove("visible");
 		document.querySelector("#optionsContent")!.ariaHidden = "true";
 	}
+});
+
+document.querySelector("#players button")?.addEventListener("click", (event) => {
+	document.querySelectorAll<HTMLImageElement>(".player img").forEach(async (playerHead) => {
+		const playerNickname = playerHead.dataset.name as string;
+
+		const response = await fetch(`/api/playerHead/${playerNickname}?refresh=true`);
+
+		if (response.status == 200) {
+			playerHead.src = URL.createObjectURL(await response.blob());
+		}
+	});
 });
