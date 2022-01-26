@@ -1,27 +1,30 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
-import { readFile, writeFile } from "fs/promises";
+import { appendFile, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
-import { defaultsDeep } from "lodash";
-import { checkForLogExpirtion, expirationInterval } from "./logs";
+import { clone, defaultsDeep } from "lodash";
+import { SettingsUpdate } from "./logs";
 import { EventEmitter } from "stream";
+import { randomBytes } from "crypto";
 
 const settingsRouter = Router();
 
 settingsRouter.get("/settings", async (_req: Request, res: Response) => {
-	res.status(200).json(settingsManager.settings);
+	const settingsClone = clone(settingsManager.settings);
+	settingsClone.auth.hash = null;
+
+	res.status(200).json(settingsClone);
 });
 
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
-	const filteredSettings: Settings = filterSettings(req.body, Object.keys(SettingsManager.defaultSettings)) as Settings;
-
-	settingsManager.updateSettings(defaultsDeep(filteredSettings, settingsManager.settings, SettingsManager.defaultSettings));
+	await settingsManager.updateSettings(req.body);
 	res.sendStatus(200);
 });
 
 export class SettingsManager extends EventEmitter {
 	settings!: Settings;
+	secret!: string;
 	static defaultSettings: Settings = {
 		shutdownDelay: {
 			enabled: true,
@@ -31,11 +34,23 @@ export class SettingsManager extends EventEmitter {
 		autoDelete: {
 			enabled: false,
 			deleteAfter: 30
+		},
+		auth: {
+			enabled: false,
+			hash: null
 		}
 	};
 
 	constructor() {
 		super();
+
+		if (!process.env.SECRET || process.env.SECRET.length < 16) {
+			this.secret = randomBytes(16).toString("hex");
+			appendFile(join(process.cwd(), "config.env"), `\nSECRET="${this.secret}" #Do not modify`, "utf8");
+		} else {
+			this.secret = process.env.SECRET;
+		}
+
 		this.loadFromFile();
 	}
 
@@ -68,10 +83,14 @@ export class SettingsManager extends EventEmitter {
 		await writeFile(join(process.cwd(), "settings.json"), JSON.stringify(settings, null, 4), "utf8");
 	}
 
-	async updateSettings(settings: Settings) {
-		this.emit("update", { oldSettings: this.settings, newSettings: settings });
-		this.settings = settings;
-		await this.saveToFile(settings);
+	async updateSettings(settings: any) {
+		const filteredSettings: Settings = filterSettings(settings, Object.keys(SettingsManager.defaultSettings)) as Settings;
+
+		const updatedSettings = defaultsDeep(filteredSettings, settingsManager.settings, SettingsManager.defaultSettings);
+
+		this.emit("update", { oldSettings: this.settings, newSettings: updatedSettings } as SettingsUpdate);
+		this.settings = updatedSettings;
+		await this.saveToFile(updatedSettings);
 	}
 }
 

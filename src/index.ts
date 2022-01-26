@@ -12,6 +12,12 @@ import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
 import logsRouter from "./logs";
 import PlayerCache, { headsRouter } from "./playerCache";
+// import session from "express-session";
+import authRouter from "./auth";
+import passport from "passport";
+import { FileStore } from "session-file-store";
+const session = require("express-session");
+const FileStore: FileStore = require("session-file-store")(session);
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
@@ -44,7 +50,23 @@ export const settingsManager = new SettingsManager();
 
 export const uuidCache = new PlayerCache();
 
-app.use(bodyParser.json());
+app.use(
+	session({
+		secret: settingsManager.secret,
+		resave: false,
+		saveUninitialized: false,
+		cookie: {
+			expires: 1000 * 60 * 60 * 3,
+			maxAge: 1000 * 60 * 60 * 3
+		},
+		store: new FileStore({ path: join(process.cwd(), "cache/sessions") })
+	})
+);
+
+app.use(passport.authenticate("session"));
+app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }));
+
+app.use("/", authRouter);
 
 app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));

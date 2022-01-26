@@ -96,9 +96,9 @@ setTimeout(() => {
 		}
 	});
 
-	settingsManager.on("update", (update) => {
-		if (update.oldSettings.autoDelete.enabled != update.settings.autoDelete.enabled) {
-			if (update.settings.autoDelete.enabled) {
+	settingsManager.on("update", (update: SettingsUpdate) => {
+		if (update.oldSettings.autoDelete.enabled != update.newSettings.autoDelete.enabled) {
+			if (update.newSettings.autoDelete.enabled) {
 				checkForLogExpirtion();
 				expirationInterval = setInterval(checkForLogExpirtion, 1000 * 60 * 60 * 24);
 			} else {
@@ -107,4 +107,10 @@ setTimeout(() => {
 		}
 	});
 }, 2000);
+
+export interface SettingsUpdate {
+	oldSettings: Settings;
+	newSettings: Settings;
+}
+
 export default logsRouter;
