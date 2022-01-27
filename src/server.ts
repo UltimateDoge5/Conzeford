@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import EventEmitter from "events";
 import { Router, Request, Response } from "express";
-import { readdir, stat, writeFile } from "fs/promises";
+import { appendFile, readdir, stat, writeFile } from "fs/promises";
 import { join } from "path";
 import { instance, settingsManager } from ".";
 
@@ -48,8 +48,6 @@ class McServer extends EventEmitter {
 
 	start = async () => {
 		if (!this.status.enabled && !this.status.isStarting) {
-			this.status.isStarting = true;
-
 			const JRE_FLAGS = process.env.JRE_FLAGS || "";
 
 			this.process = spawn(
@@ -60,19 +58,31 @@ class McServer extends EventEmitter {
 				}
 			);
 
-			this.process.stderr.on("data", (data: Buffer) => {
+			this.process.once("message", () => {
+				this.status.isStarting = true;
+			});
+
+			this.process.stderr.on("data", async (data: Buffer) => {
 				this.emit("error", data.toString());
+				if (!this.status.isStarting && !this.status.enabled) {
+					await createCrashLog(`Unexpected error while staring the server:\n${data.toString()}`);
+				} else {
+					await appendFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), data.toString());
+				}
 			});
 
 			this.process.on("error", async (error: any) => {
 				if (error.code == "ENOENT") {
 					console.log(chalk.red(new Error("SERVER_DIR/SERVER_JAR is not a valid path.")));
+					await createCrashLog(
+						`SERVER_DIR/SERVER_JAR is not a valid path.\n Your path: ${join(process.env.SERVER_DIR as string, process.env.SERVER_JAR as string)}`
+					);
 				} else {
 					console.log(chalk.red(new Error("Unexpected error occured when starting the server.")));
-					await writeFile(join(process.cwd(), "crashLog.txt"), `Unexpected error while staring the server:\n${error.toString()}`);
-					throw error;
+					await createCrashLog(`Unexpected error while staring the server:\n${error.toString()}`);
 				}
-				process.exit(1);
+
+				this.emit("crash", "There was an error while starting the server.");
 			});
 
 			this.emit("status", this.status);
@@ -109,6 +119,17 @@ class McServer extends EventEmitter {
 						this.status.players.splice(this.status.players.indexOf(player[1]), 1);
 						this.emit("status", this.status);
 					}
+				}
+			});
+
+			this.process.on("exit", () => {
+				if (!this.status.isStopping && !this.status.enabled) {
+					this.emit("crash", "The server has crashed. Checkout the crash logs.");
+					this.status.enabled = false;
+					this.status.isStarting = false;
+					this.status.isStopping = false;
+					this.status.startDate = null;
+					this.status.players = [];
 				}
 			});
 
@@ -225,6 +246,22 @@ class McServer extends EventEmitter {
 		return worldSize;
 	};
 }
+
+const createCrashLog = async (error: string) => {
+	const logs = await readdir(join(process.cwd(), "logs"));
+
+	let crashLogNumber = 1;
+
+	for (const log of logs) {
+		if (log.includes(new Date().toLocaleDateString())) {
+			crashLogNumber++;
+		}
+	}
+
+	const fileName = `crashLog-${new Date().toLocaleDateString()}-${crashLogNumber}.txt`;
+
+	await writeFile(join(process.cwd(), "logs", fileName), error);
+};
 
 export const serverRouter = Router();
 

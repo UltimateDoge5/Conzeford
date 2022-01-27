@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
-import { readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
 import { defaultsDeep } from "lodash";
-import { checkForLogExpirtion, expirationInterval } from "./logs";
+import { checkForLogExpirtion, exists, expirationInterval } from "./logs";
 import { EventEmitter } from "stream";
 
 const settingsRouter = Router();
@@ -37,6 +37,12 @@ export class SettingsManager extends EventEmitter {
 	constructor() {
 		super();
 		this.loadFromFile();
+
+		(async () => {
+			if (!(await exists(join(process.cwd(), "logs")))) {
+				await mkdir(join(process.cwd(), "logs"));
+			}
+		})();
 	}
 
 	async loadFromFile() {
@@ -65,7 +71,6 @@ export class SettingsManager extends EventEmitter {
 	}
 
 	async saveToFile(settings: Settings) {
-		console.log(join(process.cwd(), "settings.json"));
 		await writeFile(join(process.cwd(), "settings.json"), JSON.stringify(settings, null, 4), "utf8");
 	}
 

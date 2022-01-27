@@ -4,3 +4,4 @@ dist
 config.env
 settings.json
 cache
+logs

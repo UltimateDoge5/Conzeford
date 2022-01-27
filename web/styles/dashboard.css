@@ -4,9 +4,10 @@ main {
 	grid-template-columns: repeat(4, 1fr);
 	grid-template-rows: repeat(2, 1fr);
 	gap: 8px 8px;
+	overflow: hidden;
 }
 
-main > div {
+main > div:not(.alert) {
 	width: auto;
 	background-color: white;
 	border: 1px var(--lightPrimary) solid;

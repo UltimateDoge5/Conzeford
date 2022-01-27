@@ -10,7 +10,7 @@ import { statSync, writeFileSync } from "fs";
 import chalk from "chalk";
 import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
-import logsRouter from "./logs";
+import logsRouter, { exists } from "./logs";
 import PlayerCache, { headsRouter } from "./playerCache";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
@@ -167,6 +167,12 @@ instance.addListener("error", (error: string) => {
 instance.addListener("status", (status: serverStatus) => {
 	wsServer.clients.forEach((client) => {
 		client.send(JSON.stringify({ event: "status", status }));
+	});
+});
+
+instance.addListener("crash", (error: string) => {
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "crash", message: error }));
 	});
 });
 

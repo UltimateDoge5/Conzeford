@@ -48,6 +48,7 @@ PORT=port #Not required
 ```
 
 Replace the placeholders with the correct values. If you have mutliple JRE flags they must be separated by a space.
+Every time you change the config.env, restart the server to apply the changes.
 If you did everything correctly you should be able to start the server.
 
 ## Spoofing the detection of server events
