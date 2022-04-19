@@ -1,7 +1,7 @@
 {
   "name": "conzeford",
   "version": "1.4.0",
-  "main": "index.js",
+  "main": "build/index.js",
   "repository": "https://github.com/UltimateDoge5/minecraft-panel.git",
   "author": "UltimateDoge5 <piotr5kozak@gmail.com>",
   "license": "MIT",
@@ -25,13 +25,17 @@
     "@types/ws": "^8.5.3"
   },
   "scripts": {
-    "build": "tsc && pkg build/index.js -c package.json --compress GZip"
+    "build": "tsc -p tsconfig.json && tsc -p web/tsconfig.json && pkg build/index.js -c package.json --compress Brotli"
   },
   "pkg": {
     "scripts": "build/**/*.js",
     "outputPath": "dist",
     "assets": [
       "web/**/*"
+    ],
+    "targets": [
+      "node16-win-x64",
+      "node16-linux-x64"
     ]
   }
 }

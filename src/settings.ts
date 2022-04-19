@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
-import { writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
 import { defaultsDeep } from "lodash";
-import { SettingsUpdate } from "./logs";
+import { checkForLogExpirtion, exists, expirationInterval } from "./logs";
 import { EventEmitter } from "stream";
 import { readFileSync } from "fs";
 
@@ -44,6 +44,12 @@ export class SettingsManager extends EventEmitter {
 	constructor() {
 		super();
 		this.loadFromFile();
+
+		(async () => {
+			if (!(await exists(join(process.cwd(), "logs")))) {
+				await mkdir(join(process.cwd(), "logs"));
+			}
+		})();
 	}
 
 	//This function has to be synchronous - other fucntions need the settings
@@ -88,7 +94,6 @@ export class SettingsManager extends EventEmitter {
 	}
 }
 
-//This is a mess I know
 const filterSettings = (obj: any, keys: string[]): Object => {
 	return Object.keys(obj)
 		.filter((key) => keys.includes(key)) //Filter the keys - only keep the ones we want

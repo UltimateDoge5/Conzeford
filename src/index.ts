@@ -9,6 +9,7 @@ import { statSync, writeFileSync } from "fs";
 import bodyParser from "body-parser";
 import McServer, { serverRouter } from "./server";
 import settingsRouter, { SettingsManager } from "./settings";
+import logsRouter, { exists } from "./logs";
 import PlayerCache, { headsRouter } from "./playerCache";
 import authRouter, { authMiddleware } from "./auth";
 import logsRouter from "./logs";
@@ -18,7 +19,7 @@ const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
 try {
 	if (result.error) {
-		writeFileSync("config.env", 'SERVER_JAR="server_jar_name_here"\nSERVER_DIR="directory_of_server_jar_here"\nSERVER_AUTOSTART=false');
+		writeFileSync("config.env", 'SERVER_JAR="server_jar_name_here"\nSERVER_DIR="directory_of_server_jar_here"\nJRE_FLAGS=""\nSERVER_AUTOSTART=false');
 		console.log(chalk.yellow("config.env file not found - creating a new one. Please fill it with the correct values."));
 		throw new Error("No config.env file found.");
 	} else if (process.env.SERVER_JAR == undefined) {
@@ -166,9 +167,21 @@ instance.addListener("stdout", (data: Buffer) => {
 	});
 });
 
+instance.addListener("error", (error: string) => {
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "log", log: error, color: "red" }));
+	});
+});
+
 instance.addListener("status", (status: serverStatus) => {
 	wsServer.clients.forEach((client) => {
 		client.send(JSON.stringify({ event: "status", status }));
+	});
+});
+
+instance.addListener("crash", (error: string) => {
+	wsServer.clients.forEach((client) => {
+		client.send(JSON.stringify({ event: "crash", message: error }));
 	});
 });
 

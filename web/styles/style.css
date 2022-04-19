@@ -8,7 +8,7 @@
 	--lightPrimary: #e5e8ef;
 	--success: rgb(100, 189, 58);
 	--danger: #fb4747;
-	--dangerDark: #fa2e2e;
+	--dangerDark: #f50505;
 }
 
 body {
@@ -50,8 +50,8 @@ input:disabled {
 	gap: 8px;
 }
 
-.button[type="submit"]:hover,
-.button[type="submit"]:active {
+.button:hover,
+.button:active {
 	background-color: var(--primaryDark);
 }
 
@@ -121,5 +121,58 @@ button button:disabled {
 	}
 	100% {
 		transform: rotate(360deg);
+	}
+}
+
+/* Alert */
+
+.alert {
+	position: absolute;
+	bottom: -64px;
+	left: 16px;
+	min-width: 16.3%;
+	background-color: var(--consoleBackground);
+	padding: 16px 32px;
+	border-radius: 0.4rem;
+	display: flex;
+	justify-content: left;
+	align-items: center;
+	gap: 8px;
+	transition: bottom 0.65s ease-in-out;
+}
+
+.alert button {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background-color: transparent;
+	border: none;
+	color: white;
+	cursor: pointer;
+	font-size: 20px;
+}
+.alert a {
+	color: var(--primary);
+}
+
+.alert svg {
+	width: 24px;
+	height: 24px;
+}
+
+svg.danger * {
+	stroke: var(--danger);
+}
+
+svg.warning * {
+	stroke: #f2e40d;
+}
+
+@keyframes slideUp {
+	0% {
+		bottom: -64px;
+	}
+	100% {
+		bottom: 16px;
 	}
 }
