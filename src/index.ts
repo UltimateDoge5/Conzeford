@@ -1,17 +1,19 @@
 import express, { Request, Response } from "express";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
-import McServer, { serverRouter } from "./server";
 import { Server } from "ws";
 import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync, writeFileSync } from "fs";
-import chalk from "chalk";
-import settingsRouter, { SettingsManager } from "./settings";
 import bodyParser from "body-parser";
+import McServer, { serverRouter } from "./server";
+import settingsRouter, { SettingsManager } from "./settings";
 import logsRouter, { exists } from "./logs";
 import PlayerCache, { headsRouter } from "./playerCache";
+import authRouter, { authMiddleware } from "./auth";
+import logsRouter from "./logs";
+import chalk from "chalk";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
@@ -41,10 +43,17 @@ const app = express();
 const wsServer = new Server({ noServer: true });
 
 export const settingsManager = new SettingsManager();
-
 export const uuidCache = new PlayerCache();
 
-app.use(bodyParser.json());
+app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }));
+app.use("/", authRouter);
+
+if (settingsManager.settings.auth.enabled) {
+	app.use("*", authMiddleware);
+	console.log(chalk.green("Authentication enabled."));
+} else {
+	console.log(chalk.yellow("Authentication disabled."));
+}
 
 app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
@@ -178,7 +187,9 @@ instance.addListener("crash", (error: string) => {
 
 const onExit = () => {
 	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } }));
+		client.send(
+			JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } })
+		);
 	});
 };
 

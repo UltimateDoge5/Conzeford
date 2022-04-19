@@ -22,6 +22,10 @@ interface Settings {
 		enabled: boolean;
 		deleteAfter: number;
 	};
+	auth: {
+		enabled: boolean;
+		hash: string | null;
+	};
 }
 
 interface WorldSize {

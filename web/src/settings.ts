@@ -1,3 +1,5 @@
+const authModal = new InputModal("Authentication", "Set your authentication settings.");
+
 //Not asigning the type to settings variables to avoid non-indexable errors
 let clientSettings: any = {};
 let settings: any = {};
@@ -28,6 +30,65 @@ fetch("/api/settings")
 				input.disabled = !settings[form.name].enabled;
 			});
 		});
+
+		//This is a mess, I could have done this better but I just want to get this over with
+		//And yes it has to be here - I need the settings
+		const authCheckbox = document.createElement("div");
+		authCheckbox.innerHTML = `<label for="authEnabled">Enable auth</label>
+							<label class="checkbox">
+								<input type="checkbox" name="enabled" id="authEnabled" autocomplete="off" />
+								<span class="check" style="padding-left: 0"></span>
+							</label>`;
+
+		authCheckbox.style.display = "flex";
+		authCheckbox.style.alignItems = "center";
+		authCheckbox.style.gap = "16px";
+
+		const authHash = document.createElement("input");
+		authHash.type = "password";
+		authHash.placeholder = "Password";
+		authHash.disabled = !settings.auth.enabled;
+
+		authCheckbox.querySelector("input")?.addEventListener("change", () => {
+			authHash.disabled = !authCheckbox.querySelector("input")?.checked;
+		});
+
+		authCheckbox.querySelector("input")!.checked = settings.auth.enabled;
+
+		authModal.addInput(authCheckbox);
+		authModal.addInput(authHash, "Password");
+
+		authModal.onSubmit = async (inputs) => {
+			const authEnabled = inputs[0].checked;
+			const authHash = inputs[1].value;
+
+			if (settings.auth.enabled !== authEnabled) {
+				await fetch("/toggleAuth", {
+					body: JSON.stringify({ enabled: authEnabled }),
+					method: "POST",
+					headers: { "Content-Type": "application/json" }
+				});
+				settings.auth.enabled = authEnabled;
+				authCheckbox.querySelector("input")!.checked = authEnabled;
+			}
+
+			console.log(settings.auth.enabled, authHash.trim().length > 3);
+			if (settings.auth.enabled && authHash.trim().length > 3) {
+				const response = await fetch("/password", {
+					body: JSON.stringify({ password: authHash }),
+					method: "POST",
+					headers: { "Content-Type": "application/json" }
+				});
+				if (response.status !== 200) {
+					authModal.setError((await response.json()).error);
+					return false;
+				}
+			}
+
+			alert("Restart the server to apply the changes!");
+			authModal.setVisibility(false);
+			return true;
+		};
 	});
 
 //For some reason sometimes buttons aren't disabled on reload
@@ -35,7 +96,7 @@ document.querySelectorAll<HTMLButtonElement>("#btnGroup [type='submit']").forEac
 	button.disabled = true;
 });
 
-document.querySelectorAll("form").forEach((form: HTMLFormElement) => {
+document.querySelectorAll<HTMLFormElement>("form:not(.skip)").forEach((form: HTMLFormElement) => {
 	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
 		const data: any = { [form.name]: {} }; //Same here, not asigning the type to settings to avoid non-indexable errors
@@ -141,7 +202,7 @@ const objectDiffrence = (first: any, second: any): Object => {
 	return diffrence;
 };
 
-document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
+document.querySelectorAll<HTMLInputElement>("form:not(.skip) input").forEach((input) => {
 	input.addEventListener("change", async (event: Event) => {
 		const form: HTMLFormElement = getParentRecursive<HTMLFormElement>(event.target as HTMLElement, "form");
 
@@ -179,3 +240,5 @@ document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
 		});
 	});
 });
+
+document.querySelector("#auth button")?.addEventListener("click", () => authModal.setVisibility(true));

@@ -6,17 +6,20 @@ import { settingsManager } from ".";
 import { defaultsDeep } from "lodash";
 import { checkForLogExpirtion, exists, expirationInterval } from "./logs";
 import { EventEmitter } from "stream";
+import { readFileSync } from "fs";
 
 const settingsRouter = Router();
 
 settingsRouter.get("/settings", async (_req: Request, res: Response) => {
-	res.status(200).json(settingsManager.settings);
+	res.status(200).json({ ...settingsManager.settings, auth: { ...settingsManager.settings.auth, hash: null } });
 });
 
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
-	const filteredSettings: Settings = filterSettings(req.body, Object.keys(SettingsManager.defaultSettings)) as Settings;
+	if (req.body.auth) {
+		delete req.body.auth;
+	}
 
-	settingsManager.updateSettings(defaultsDeep(filteredSettings, settingsManager.settings, SettingsManager.defaultSettings));
+	await settingsManager.updateSettings(req.body);
 	res.sendStatus(200);
 });
 
@@ -31,6 +34,10 @@ export class SettingsManager extends EventEmitter {
 		autoDelete: {
 			enabled: false,
 			deleteAfter: 30
+		},
+		auth: {
+			enabled: false,
+			hash: null
 		}
 	};
 
@@ -45,9 +52,11 @@ export class SettingsManager extends EventEmitter {
 		})();
 	}
 
-	async loadFromFile() {
+	//This function has to be synchronous - other fucntions need the settings
+	//Global async/await functions are not allowed in the constructor
+	loadFromFile() {
 		try {
-			this.settings = JSON.parse((await readFile(join(process.cwd(), "settings.json"), "utf8")) || "{}");
+			this.settings = JSON.parse(readFileSync(join(process.cwd(), "settings.json"), "utf8") || "{}");
 			this.settings = defaultsDeep(this.settings, SettingsManager.defaultSettings);
 			this.emit("load", this.settings);
 		} catch (error: any) {
@@ -74,10 +83,14 @@ export class SettingsManager extends EventEmitter {
 		await writeFile(join(process.cwd(), "settings.json"), JSON.stringify(settings, null, 4), "utf8");
 	}
 
-	async updateSettings(settings: Settings) {
-		this.emit("update", { oldSettings: this.settings, newSettings: settings });
-		this.settings = settings;
-		await this.saveToFile(settings);
+	async updateSettings(settings: any) {
+		const filteredSettings: Settings = filterSettings(settings, Object.keys(SettingsManager.defaultSettings)) as Settings;
+
+		const updatedSettings = defaultsDeep(filteredSettings, settingsManager.settings, SettingsManager.defaultSettings);
+
+		this.emit("update", { oldSettings: this.settings, newSettings: updatedSettings } as SettingsUpdate);
+		this.settings = updatedSettings;
+		await this.saveToFile(updatedSettings);
 	}
 }
 
