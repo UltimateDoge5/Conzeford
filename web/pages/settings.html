@@ -8,6 +8,7 @@
 		<link rel="stylesheet" href="/styles/navbar.css" />
 		<link rel="stylesheet" href="/styles/sidebar.css" />
 		<link rel="stylesheet" href="/styles/settings.css" />
+		<link rel="stylesheet" href="/styles/modal.css" />
 		<title>Settings</title>
 	</head>
 	<body>
@@ -97,8 +98,8 @@
 				<div id="description">
 					<h1>Shutdown delay</h1>
 					<p>
-						A delay that will befor shutting down the server. After initiating the shutdown players will be messaged that the shutdown will take
-						place in X amount of time.<br /><br />
+						A delay that will befor shutting down the server. After initiating the shutdown players will be messaged that the shutdown
+						will take place in X amount of time.<br /><br />
 						The delay and the message are configurable.
 					</p>
 				</div>
@@ -177,8 +178,42 @@
 					</div>
 				</form>
 			</section>
+			<hr />
+
+			<section>
+				<div id="description">
+					<h1>Authentication</h1>
+					<p>
+						To access the dashboard or any other page, you will need to be authenticated with a username and a password.<br /><br />
+						The username is <b>admin</b>! <br />The password is configurable, however the <b>username is not</b>.
+					</p>
+				</div>
+
+				<form id="auth" class="togglable skip">
+					<h2>Authentication settings</h2>
+					<hr />
+					<div id="formGroup">
+						<div style="padding: 8px">
+							<label for="authEnabled">Enable auth</label>
+							<label class="checkbox">
+								<input type="checkbox" name="enabled" id="authEnabled" autocomplete="off" disabled="true" />
+								<span class="check" style="padding-left: 0"></span>
+								<span class="label">Enabled</span>
+							</label>
+						</div>
+					</div>
+					<hr />
+					<div>
+						<span id="notification"></span>
+						<div id="btnGroup">
+							<button class="button danger" type="button">Manage auth</button>
+						</div>
+					</div>
+				</form>
+			</section>
 		</main>
 	</body>
 	<script src="/scripts/client.js"></script>
+	<script src="/scripts/modal.js"></script>
 	<script src="/scripts/settings.js"></script>
 </html>

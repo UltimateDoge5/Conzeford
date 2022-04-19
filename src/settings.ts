@@ -1,30 +1,30 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
-import { appendFile, readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
-import { clone, defaultsDeep } from "lodash";
+import { defaultsDeep } from "lodash";
 import { SettingsUpdate } from "./logs";
 import { EventEmitter } from "stream";
-import { randomBytes } from "crypto";
+import { readFileSync } from "fs";
 
 const settingsRouter = Router();
 
 settingsRouter.get("/settings", async (_req: Request, res: Response) => {
-	const settingsClone = clone(settingsManager.settings);
-	settingsClone.auth.hash = null;
-
-	res.status(200).json(settingsClone);
+	res.status(200).json({ ...settingsManager.settings, auth: { ...settingsManager.settings.auth, hash: null } });
 });
 
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
+	if (req.body.auth) {
+		delete req.body.auth;
+	}
+
 	await settingsManager.updateSettings(req.body);
 	res.sendStatus(200);
 });
 
 export class SettingsManager extends EventEmitter {
 	settings!: Settings;
-	secret!: string;
 	static defaultSettings: Settings = {
 		shutdownDelay: {
 			enabled: true,
@@ -43,20 +43,14 @@ export class SettingsManager extends EventEmitter {
 
 	constructor() {
 		super();
-
-		if (!process.env.SECRET || process.env.SECRET.length < 16) {
-			this.secret = randomBytes(16).toString("hex");
-			appendFile(join(process.cwd(), "config.env"), `\nSECRET="${this.secret}" #Do not modify`, "utf8");
-		} else {
-			this.secret = process.env.SECRET;
-		}
-
 		this.loadFromFile();
 	}
 
-	async loadFromFile() {
+	//This function has to be synchronous - other fucntions need the settings
+	//Global async/await functions are not allowed in the constructor
+	loadFromFile() {
 		try {
-			this.settings = JSON.parse((await readFile(join(process.cwd(), "settings.json"), "utf8")) || "{}");
+			this.settings = JSON.parse(readFileSync(join(process.cwd(), "settings.json"), "utf8") || "{}");
 			this.settings = defaultsDeep(this.settings, SettingsManager.defaultSettings);
 			this.emit("load", this.settings);
 		} catch (error: any) {

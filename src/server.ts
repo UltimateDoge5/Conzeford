@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import EventEmitter from "events";
 import { Router, Request, Response } from "express";
-import { readdir, stat, truncate } from "fs/promises";
+import { readdir, stat } from "fs/promises";
 import { join } from "path";
 import { instance, settingsManager } from ".";
 

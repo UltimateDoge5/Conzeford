@@ -1,18 +1,57 @@
-import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { compare, hash } from "bcrypt";
 import { settingsManager } from ".";
-import { dirname, join } from "path";
+import { randomBytes } from "crypto";
 
 const authRouter = Router();
 
-authRouter.get("/login", function (_req, res, next) {
-	res.sendFile(join(dirname(__dirname), "web/pages/login.html"));
+authRouter.post("/toggleAuth", async (req: Request, res: Response) => {
+	const { enabled } = req.body;
+
+	if (enabled) {
+		if (settingsManager.settings.auth.hash == null) {
+			const password = randomBytes(16).toString("hex");
+			await settingsManager.updateSettings({
+				auth: {
+					enabled: true,
+					hash: await hash(password, 10)
+				}
+			});
+
+			res.json({ password });
+		} else {
+			await settingsManager.updateSettings({
+				auth: {
+					enabled: true
+				}
+			});
+
+			res.sendStatus(200);
+		}
+	} else {
+		await settingsManager.updateSettings({
+			auth: {
+				enabled: false
+			}
+		});
+
+		res.sendStatus(200);
+	}
 });
 
 authRouter.post("/password", async (req, res) => {
-	const passwordHash = await hash(req.body.password.trim(), 10);
+	let { password } = req.body;
+	password = password.trim();
+
+	if (password.length < 8) {
+		res.status(400).json({ error: "Password must be at least 8 characters long." });
+		return;
+	} else if (password.length > 32) {
+		res.status(400).json({ error: "Password must be less than 32 characters long." });
+		return;
+	}
+
+	const passwordHash = await hash(password, 10);
 
 	await settingsManager.updateSettings({
 		auth: {
@@ -22,46 +61,19 @@ authRouter.post("/password", async (req, res) => {
 	res.sendStatus(200);
 });
 
-//For tesin'
-authRouter.get("/auth", (req, res) => {
-	if (req.user) {
-		res.send("auth");
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	if (!req.headers.authorization) {
+		res.setHeader("WWW-Authenticate", 'Basic realm="Please login to access the dashboard.", charset="UTF-8"');
+		res.status(401).send("Missing Authorization Header");
 	} else {
-		res.send("authn't");
-	}
-});
-
-passport.use(
-	new LocalStrategy(async (username, password, cb) => {
-		const comparision = await compare(password, settingsManager.settings.auth.hash as string);
-
-		if (comparision) {
-			//User contains nothing for now
-			return cb(null, {});
+		const auth = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("ascii").split(":");
+		if (auth[0] === "admin" && compare(auth[1], settingsManager.settings.auth.hash! || "")) {
+			next();
+		} else {
+			res.setHeader("WWW-Authenticate", 'Basic realm="Please login to access the dashboard.", charset="UTF-8"');
+			res.status(401).send("Invalid credentials.");
 		}
-
-		return cb(null, false);
-	})
-);
-
-passport.serializeUser(function (user, cb) {
-	process.nextTick(function () {
-		cb(null, { ...user });
-	});
-});
-
-passport.deserializeUser(function (user: any, cb) {
-	process.nextTick(function () {
-		return cb(null, user);
-	});
-});
-
-authRouter.post(
-	"/login",
-	passport.authenticate("local", {
-		successRedirect: "/",
-		failureRedirect: "/login"
-	})
-);
+	}
+};
 
 export default authRouter;
