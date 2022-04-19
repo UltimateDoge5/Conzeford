@@ -1,10 +1,9 @@
 import { Router, Request, Response } from "express";
-import { createWriteStream, existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { uuidCache } from ".";
 import { exists } from "./logs";
 import axios from "axios";
-import { Stream } from "stream";
 
 export const headsRouter = Router();
 

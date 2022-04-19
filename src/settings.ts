@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import { Request, Response, Router } from "express";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { settingsManager } from ".";
 import { defaultsDeep } from "lodash";
-import { checkForLogExpirtion, exists, expirationInterval } from "./logs";
+import { exists, SettingsUpdate } from "./logs";
 import { EventEmitter } from "stream";
 import { readFileSync } from "fs";
 
