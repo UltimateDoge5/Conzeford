@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
 import { Server } from "ws";
-import { IncomingMessage } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync, writeFileSync } from "fs";
@@ -13,6 +13,7 @@ import PlayerCache, { headsRouter } from "./playerCache";
 import authRouter, { authMiddleware } from "./auth";
 import logsRouter from "./logs";
 import chalk from "chalk";
+import { compare } from "bcrypt";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env") });
 
@@ -90,9 +91,22 @@ const server = app.listen(process.env.PORT || 5454, () => {
 	console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`));
 });
 
-server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer) => {
-	wsServer.handleUpgrade(request, socket, head, (socket) => {
-		wsServer.emit("connection", socket, request);
+server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
+	if (settingsManager.settings.auth.enabled) {
+		if (!req.headers.authorization) {
+			socket.destroy();
+			return;
+		} else {
+			const auth = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("ascii").split(":");
+			if (!(auth[0] === "admin" && compare(auth[1], settingsManager.settings.auth.hash! || ""))) {
+				socket.destroy();
+				return;
+			}
+		}
+	}
+
+	wsServer.handleUpgrade(req, socket, head, (socket) => {
+		wsServer.emit("connection", socket, req);
 	});
 });
 
