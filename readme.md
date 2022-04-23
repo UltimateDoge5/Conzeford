@@ -14,13 +14,13 @@ After the initial setup of the application, basic things like starting/stopping 
 
 The Minecraft server itself is started as a java process managed by the app. The application communicates with the browser via WebSockets and REST Apis.
 
-The method for detection of the server events and the is's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
+The method for detection of the server events and the it's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
 
 ## Features
 
 This those are some of current and planned features:
 
--   [x] State management
+-   [x] State management (start/stop/restart)
 -   [x] Console interface
 -   [x] Aplication settings
 -   [x] Log reader

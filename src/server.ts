@@ -91,7 +91,6 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 
 			//Wait for the shell to start
 			this.process.on("data", (data) => {
-				console.log(data);
 				this.emit("stdout", data);
 
 				if (this.status.isStarting) {

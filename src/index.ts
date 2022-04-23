@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
 import { Server } from "ws";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync, writeFileSync } from "fs";
@@ -15,7 +15,7 @@ import logsRouter from "./logs";
 import chalk from "chalk";
 import { compare } from "bcrypt";
 
-const result = dotenv.config({ path: join(process.cwd(), "config.env") });
+const result = dotenv.config({ path: join(process.cwd(), "config.env"), override: false });
 
 try {
 	if (result.error) {
@@ -61,30 +61,10 @@ if (settingsManager.settings.auth.enabled) {
 app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
 app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
 
-app.get("/", (req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/index.html"));
-});
-
-app.get("/console", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/console.html"));
-});
-
-app.get("/settings", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/settings.html"));
-});
-
-app.get("/logs", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/logs.html"));
-});
-
-app.get("/logs/:logId", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/logViewer.html"));
-});
-
 app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
 app.get("*", (_req: Request, res: Response) => {
-	res.sendStatus(404);
+	res.redirect("http://localhost:3000");
 });
 
 const server = app.listen(process.env.PORT || 5454, () => {
