@@ -113,21 +113,15 @@ server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
 wsServer.on("connection", async (socket) => {
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
-	if (instance.status.enabled && !instance.status.isStarting) {
+	if (instance.status.enabled || instance.status.isStarting) {
 		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
 		const logs = log.split("\n");
 
-		logs.forEach((line) => {
-			let color = "white";
-
-			if (line.match(/(?<=\[)(.*?WARN)(?=\])/)) {
-				color = "yellow";
-			} else if (line.match(/(?<=\[)(.*?ERROR)(?=\])/)) {
-				color = "red";
-			}
-
-			socket.send(JSON.stringify({ event: "log", log: line, color }));
-		});
+		setTimeout(() => {
+			logs.forEach((line) => {
+				socket.send(JSON.stringify({ event: "log", log: line }));
+			});
+		}, 1000);
 	}
 
 	socket.on("message", (data) => {
@@ -170,22 +164,8 @@ wsServer.on("connection", async (socket) => {
 export const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
 
 instance.addListener("stdout", (data: Buffer) => {
-	let color = "white";
-
-	if (data.toString().match(/(?<=\[)(.*?WARN)(?=\])/)) {
-		color = "yellow";
-	} else if (data.toString().match(/(?<=\[)(.*?ERROR)(?=\])/)) {
-		color = "red";
-	}
-
 	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8"), color }));
-	});
-});
-
-instance.addListener("error", (error: string) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", log: error, color: "red" }));
+		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8") }));
 	});
 });
 

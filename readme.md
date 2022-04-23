@@ -25,7 +25,7 @@ This those are some of current and planned features:
 -   [x] Aplication settings
 -   [x] Log reader
 -   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
--   [ ] Password protection
+-   [x] Password protection
 
 The exact list can be found [here](https://github.com/UltimateDoge5/Conzeford/projects/1).  
 Conzeford also has its own configurable features like shutdown delay - before a shutdown a message about it is sent to the players. And a lot of smaller features.
@@ -40,10 +40,10 @@ Config.env will also be generated on start, if its not present but requires fill
 The config looks like this:
 
 ```
-SERVER_JAR="server_jar_name_here" #required
-SERVER_DIR="directory_of_server_jar_here" #required
+SERVER_JAR="server_jar_name_here" #Required
+SERVER_DIR="directory_of_server_jar_here" #Required
 JRE_FLAGS="your_jre_flags_here" #Here you can put you jre flags like -Xmx4G. Not required
-SERVER_AUTOSTART=false #true or false
+SERVER_AUTOSTART=false #True or false
 PORT=port #Not required
 ```
 
