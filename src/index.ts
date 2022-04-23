@@ -149,7 +149,7 @@ instance.addListener("stdout", (data: Buffer) => {
 	});
 });
 
-instance.addListener("status", (status: serverStatus) => {
+instance.addListener("status", (status: ServerStatus) => {
 	wsServer.clients.forEach((client) => {
 		client.send(JSON.stringify({ event: "status", status }));
 	});

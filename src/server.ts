@@ -9,9 +9,10 @@ import * as pty from "node-pty";
 import { writeFileSync } from "fs";
 import { cwd } from "process";
 import { spawnSync } from "child_process";
+import stripAnsi from "strip-ansi";
 
 class McServer extends EventEmitter {
-	status: serverStatus;
+	status: ServerStatus;
 	worldSize!: WorldSize;
 	process!: pty.IPty;
 
@@ -110,12 +111,12 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 					//I know this can be easly spoofed for example with modified chat messages
 					//and I will probably use a plugin to do this
 					//but it's enough for now
-					if (data.match(/(?:(\w*) joined the game)/) && !data.match(/<\w*>/)) {
-						const player = data.match(/(?:(\w*) joined the game)/) as RegExpMatchArray;
+					if (stripAnsi(data).match(/(?:(\w*) joined the game)/) && !data.match(/<\w*>/)) {
+						const player = stripAnsi(data).match(/(?:(\w*) joined the game)/) as RegExpMatchArray;
 						this.status.players.push(player[1]);
 						this.emit("status", this.status);
-					} else if (data.match(/(?:(\w*) left the game)/) && !data.match(/<\w*>/)) {
-						const player = data.match(/((?<player>\w*) left the game)/) as RegExpMatchArray;
+					} else if (stripAnsi(data).match(/(?:(\w*) left the game)/) && !data.match(/<\w*>/)) {
+						const player = stripAnsi(data).match(/((?<player>\w*) left the game)/) as RegExpMatchArray;
 						this.status.players.splice(this.status.players.indexOf(player[1]), 1);
 						this.emit("status", this.status);
 					}
@@ -150,7 +151,7 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 			// 		this.emit("crash", "There was an error while starting the server.");
 			// 	});
 
-			this.status.startDate = new Date();
+			this.status.startDate = Date.now();
 			return true;
 		}
 
@@ -278,6 +279,7 @@ export const serverRouter = Router();
 
 serverRouter.get("/worldSize", async (req: Request, res: Response) => {
 	const worldSize = await instance.getWorldSize(req.query.refresh == "true");
+	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.status(200).json(worldSize);
 });
 

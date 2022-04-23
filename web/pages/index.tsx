@@ -1,17 +1,98 @@
+import { Menu } from "@headlessui/react";
+import moment from "moment";
 import Head from "next/head";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import Sidebar from "../components/sidebar";
 
 import styles from "../styles/dashboard.module.scss";
+import { getLedColor, getStatusText } from "../utils/status";
+import { apiUrl, isBrowser } from "./_app";
 
-export default function Home() {
+const Dashboard = () => {
+	const [wsInstance] = useState(() => (isBrowser ? new WebSocket("ws://localhost:5454") : null));
+	const [status, setStatus] = useState<ServerStatus>({ enabled: false, isStarting: false, isStopping: false, players: null, startDate: null });
+
+	useEffect(() => {
+		if (isBrowser) {
+			wsInstance.onopen = () => {
+				console.log("Connected to server");
+			};
+
+			wsInstance.onmessage = (event) => {
+				const data = JSON.parse(event.data);
+				if (data.event === "status") {
+					setStatus(data.status);
+				}
+			};
+
+			wsInstance.onclose = () => {
+				console.log("Disconnected from server");
+			};
+		}
+	}, [wsInstance]);
+
+	const ButtonMenu = ({}) => {
+		return (
+			<Menu>
+				<Menu.Button className={`${styles.optionsToggle} button danger`} title="Show more options">
+					<svg xmlns="http://www.w3.org/2000/svg" style={{ width: "20px", height: "20px" }} viewBox="0 0 20 20" fill="currentColor">
+						<path
+							fillRule="evenodd"
+							d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+							clipRule="evenodd"
+						/>
+					</svg>
+				</Menu.Button>
+				<div>
+					<Menu.Items className={styles.optionsContent}>
+						<Menu.Item>
+							{({ active }) => (
+								<button
+									className="button danger"
+									title="Stop the server wihtout a delay"
+									onClick={() => wsInstance?.send(JSON.stringify({ event: "stop", immediate: true }))}
+								>
+									Stop instantly
+								</button>
+							)}
+						</Menu.Item>
+						<Menu.Item>
+							{({ active }) => (
+								<button
+									className="button danger"
+									title="Restart the server."
+									onClick={() => wsInstance?.send(JSON.stringify({ event: "restart", immediate: false }))}
+								>
+									Restart
+								</button>
+							)}
+						</Menu.Item>
+						<Menu.Item>
+							{({ active }) => (
+								<button
+									className="button danger"
+									title="Restart the server wihtout a delay"
+									onClick={() => wsInstance?.send(JSON.stringify({ event: "restart", immediate: true }))}
+								>
+									Restart instantly
+								</button>
+							)}
+						</Menu.Item>
+					</Menu.Items>
+				</div>
+			</Menu>
+		);
+	};
+
 	return (
 		<>
 			<Head>
 				<title>Dashboard</title>
 			</Head>
 			<Sidebar />
-			<Navbar title="Dashboard" />
+			<Navbar title="Dashboard" status={status} />
 			<main className={styles.main}>
 				<div className={styles.dashboardStatus}>
 					<h1>
@@ -34,97 +115,27 @@ export default function Home() {
 
 					<section>
 						<div id="status">
-							<svg className="statusLed" width="34" height="34" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<circle cx="10" cy="10" r="10" fill="#FB4747" />
+							<svg width="34" height="34" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<circle cx="10" cy="10" r="10" fill={getLedColor(status)} />
 							</svg>
-							<span className="statusText">Stopped</span>
+							<span>{getStatusText(status)}</span>
 						</div>
-						<div>
-							<span>
-								Uptime: <span id="uptime">00:00:00</span>
-							</span>
-						</div>
+						<div>{status.startDate == null ? <span>Uptime: 00:00:00</span> : <ServerUptime startTime={status.startDate} />}</div>
 					</section>
 
 					<div className={styles.btnGroup}>
-						<button data-behavior="start" className="button serverToggle">
+						<button className="button" onClick={() => wsInstance?.send(JSON.stringify({ event: "start" }))}>
 							Start
 						</button>
 						<div>
-							<button data-behavior="stop" id="server" className="button danger serverToggle">
+							<button className="button danger" onClick={() => wsInstance?.send(JSON.stringify({ event: "stop", immediate: false }))}>
 								Stop
 							</button>
-
-							<div>
-								<button className={`${styles.optionsToggle} button danger`} title="Show more options">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										style={{ width: "20px", height: "20px" }}
-										viewBox="0 0 20 20"
-										fill="currentColor"
-									>
-										<path
-											fillRule="evenodd"
-											d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-											clipRule="evenodd"
-										/>
-									</svg>
-								</button>
-								<div className={styles.optionsContent} aria-hidden="true">
-									<button
-										className="button danger serverToggle"
-										data-behavior="stop"
-										data-immediate="true"
-										title="Stop the server wihtout a delay"
-									>
-										Stop instantly
-									</button>
-									<button className="button danger serverToggle" data-behavior="restart" title="Restart the server.">
-										Restart
-									</button>
-									<button
-										className="button danger serverToggle"
-										data-behavior="restart"
-										data-immediate="true"
-										title="Restart the server wihtout a delay"
-									>
-										Restart instantly
-									</button>
-								</div>
-							</div>
+							<ButtonMenu />
 						</div>
 					</div>
 				</div>
-
-				<div className={styles.players}>
-					<h1>
-						<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-							<path d="M0 0h24v24H0V0z" fill="none" />
-							<path d="M9 13.75c-2.34 0-7 1.17-7 3.5V19h14v-1.75c0-2.33-4.66-3.5-7-3.5zM4.34 17c.84-.58 2.87-1.25 4.66-1.25s3.82.67 4.66 1.25H4.34zM9 12c1.93 0 3.5-1.57 3.5-3.5S10.93 5 9 5 5.5 6.57 5.5 8.5 7.07 12 9 12zm0-5c.83 0 1.5.67 1.5 1.5S9.83 10 9 10s-1.5-.67-1.5-1.5S8.17 7 9 7zm7.04 6.81c1.16.84 1.96 1.96 1.96 3.44V19h4v-1.75c0-2.02-3.5-3.17-5.96-3.44zM15 12c1.93 0 3.5-1.57 3.5-3.5S16.93 5 15 5c-.54 0-1.04.13-1.5.35.63.89 1 1.98 1 3.15s-.37 2.26-1 3.15c.46.22.96.35 1.5.35z" />
-						</svg>
-						Players
-					</h1>
-					<section className={styles.loading}>
-						<div className="spinner dark"></div>
-					</section>
-					<div className={styles.refresh}>
-						<button className="button" style={{ margin: "auto" }}>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								style={{ width: " 20px", height: "20px" }}
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
-								<path
-									fillRule="evenodd"
-									d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							Refresh
-						</button>
-					</div>
-				</div>
+				<PlayerList players={status.players} />
 
 				<div className={styles.worldSize}>
 					<h1>
@@ -144,9 +155,7 @@ export default function Home() {
 						</svg>
 						World size
 					</h1>
-					<section className={styles.loading}>
-						<div className="spinner dark"></div>
-					</section>
+					<WorldSize />
 					<div className="refresh">
 						<button className="button" style={{ margin: "auto" }}>
 							<svg xmlns="http://www.w3.org/2000/svg" style={{ width: "20px", height: "20px" }} viewBox="0 0 20 20" fill="currentColor">
@@ -163,4 +172,114 @@ export default function Home() {
 			</main>
 		</>
 	);
-}
+};
+
+const ServerUptime = ({ startTime }) => {
+	const [_seconds, setSeconds] = useState(0);
+
+	useEffect(() => {
+		const interval = setInterval(() => setSeconds(Date.now()), 1000);
+
+		return () => clearInterval(interval);
+	}, [startTime]);
+
+	return <span>Uptime: {moment().subtract(startTime, "milliseconds").subtract(1, "hour").format("HH:mm:ss")}</span>;
+};
+
+const PlayerList = ({ players }) => {
+	const [refresh, setRefresh] = useState(false);
+
+	return (
+		<div className={styles.players}>
+			<h1>
+				<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+					<path d="M0 0h24v24H0V0z" fill="none" />
+					<path d="M9 13.75c-2.34 0-7 1.17-7 3.5V19h14v-1.75c0-2.33-4.66-3.5-7-3.5zM4.34 17c.84-.58 2.87-1.25 4.66-1.25s3.82.67 4.66 1.25H4.34zM9 12c1.93 0 3.5-1.57 3.5-3.5S10.93 5 9 5 5.5 6.57 5.5 8.5 7.07 12 9 12zm0-5c.83 0 1.5.67 1.5 1.5S9.83 10 9 10s-1.5-.67-1.5-1.5S8.17 7 9 7zm7.04 6.81c1.16.84 1.96 1.96 1.96 3.44V19h4v-1.75c0-2.02-3.5-3.17-5.96-3.44zM15 12c1.93 0 3.5-1.57 3.5-3.5S16.93 5 15 5c-.54 0-1.04.13-1.5.35.63.89 1 1.98 1 3.15s-.37 2.26-1 3.15c.46.22.96.35 1.5.35z" />
+				</svg>
+				Players
+			</h1>
+			{players == null ? (
+				<section className={styles.loading}>
+					<div className="spinner dark"></div>
+				</section>
+			) : (
+				<section>
+					{players.map((player: string) => {
+						return (
+							<span key={player} className={styles.player}>
+								<Image
+									src={`${apiUrl}/api/playerHead/${player}${refresh ? "?refresh=true" : ""}`}
+									alt={`${player}'s head`}
+									height={64}
+									width={64}
+									unoptimized
+								/>
+								{player}
+							</span>
+						);
+					})}
+				</section>
+			)}
+			<div className={styles.refresh}>
+				<button className="button" style={{ margin: "auto" }} onClick={() => setRefresh(true)}>
+					<svg xmlns="http://www.w3.org/2000/svg" style={{ width: " 20px", height: "20px" }} viewBox="0 0 20 20" fill="currentColor">
+						<path
+							fillRule="evenodd"
+							d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+							clipRule="evenodd"
+						/>
+					</svg>
+					Refresh
+				</button>
+			</div>
+		</div>
+	);
+};
+
+const WorldSize = () => {
+	const [worlds, setWorlds] = useState<WorldSize>(null);
+
+	const worldNames = { world: "Overworld", world_nether: "Nether", world_the_end: "The End" };
+
+	const formatBytes = (bytes: number) => {
+		if (bytes === 0) return "0 Bytes";
+
+		const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+		const k = 1024;
+
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+	};
+
+	useEffect(() => {
+		fetch(`${apiUrl}/api/worldSize`)
+			.then((res) => res.json())
+			.then((data) => {
+				setWorlds(data);
+			});
+	}, []);
+
+	if (worlds == null) {
+		return (
+			<section className={styles.loading}>
+				<div className="spinner dark"></div>
+			</section>
+		);
+	}
+
+	return (
+		<section>
+			{worlds.worlds.map((world) => {
+				return (
+					<div key={world.name} className={styles.world}>
+						<h2>{worldNames[world.name]}</h2>
+						<p>{formatBytes(world.size)}</p>
+					</div>
+				);
+			})}
+		</section>
+	);
+};
+
+export default Dashboard;
