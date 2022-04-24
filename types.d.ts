@@ -10,6 +10,7 @@ interface ServerStatus {
 	isStopping: boolean;
 	players: string[];
 	startDate: number | null;
+	disconnected?: boolean;
 }
 
 interface Settings {

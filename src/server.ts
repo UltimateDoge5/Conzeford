@@ -91,8 +91,15 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 			this.emit("status", this.status);
 
 			//Wait for the shell to start
-			this.process.on("data", (data) => {
+			this.process.onData((data) => {
+				// if (stripAnsi(data).match(/(> )./) == null) {
 				this.emit("stdout", data);
+				// }
+				// else {
+				// 	const ansiLess = stripAnsi(data).replace("\n", "").replace("\r", "");
+				// 	console.log(ansiLess, `replaced: ${data.replace(/(> ).*/, "")}`);
+				// 	this.emit("stdout", data.replace(/(> ).*/, ""));
+				// }
 
 				if (this.status.isStarting) {
 					if (data.match(/(Done \(\d*\.\d{3}s\)! For help, type "help")/)) {
@@ -175,7 +182,6 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 
 	executeCommand = (command: string) => {
 		if (this.status.enabled && !this.status.isStopping && !this.status.isStarting) {
-			this.emit("stdout", Buffer.from(`> ${command}\n`));
 			this.process.write(`${command}\n`);
 		}
 	};

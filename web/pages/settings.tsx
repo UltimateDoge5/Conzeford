@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 import Sidebar from "../components/sidebar";
@@ -9,10 +10,6 @@ const Settings = () => {
 
 	useEffect(() => {
 		if (isBrowser) {
-			wsInstance.onopen = () => {
-				console.log("Connected to server");
-			};
-
 			wsInstance.onmessage = (event) => {
 				const data = JSON.parse(event.data);
 				if (data.event === "status") {
@@ -21,13 +18,16 @@ const Settings = () => {
 			};
 
 			wsInstance.onclose = () => {
-				console.log("Disconnected from server");
+				setStatus({ enabled: false, isStarting: false, isStopping: false, players: [], startDate: null, disconnected: true });
 			};
 		}
 	}, [wsInstance]);
 
 	return (
 		<>
+			<Head>
+				<title>Settings</title>
+			</Head>
 			<Sidebar />
 			<Navbar title="Settings" status={status} />
 		</>

@@ -93,7 +93,7 @@ server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
 wsServer.on("connection", async (socket) => {
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
-	if (instance.status.enabled || instance.status.isStarting) {
+	if (instance.status.enabled && !instance.status.isStarting) {
 		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
 		const logs = log.split("\n");
 

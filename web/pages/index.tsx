@@ -16,10 +16,6 @@ const Dashboard = () => {
 
 	useEffect(() => {
 		if (isBrowser) {
-			wsInstance.onopen = () => {
-				console.log("Connected to server");
-			};
-
 			wsInstance.onmessage = (event) => {
 				const data = JSON.parse(event.data);
 				if (data.event === "status") {
@@ -28,7 +24,7 @@ const Dashboard = () => {
 			};
 
 			wsInstance.onclose = () => {
-				console.log("Disconnected from server");
+				setStatus({ enabled: false, isStarting: false, isStopping: false, players: [], startDate: null, disconnected: true });
 			};
 		}
 	}, [wsInstance]);

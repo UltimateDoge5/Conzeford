@@ -11,7 +11,9 @@ export const getLedColor = (status: ServerStatus) => {
 };
 
 export const getStatusText = (status: ServerStatus) => {
-	if (status.isStarting) {
+	if (status.disconnected) {
+		return "Disconnected";
+	} else if (status.isStarting) {
 		return "Starting";
 	} else if (status.isStopping) {
 		return "Stopping";
