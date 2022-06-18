@@ -6,7 +6,7 @@ import { platform } from "os";
 import { join } from "path";
 import { instance, settingsManager } from ".";
 import * as pty from "node-pty";
-import { writeFileSync } from "fs";
+import { createWriteStream, truncateSync, writeFileSync, WriteStream } from "fs";
 import { cwd } from "process";
 import { spawnSync } from "child_process";
 import stripAnsi from "strip-ansi";
@@ -15,6 +15,7 @@ class McServer extends EventEmitter {
 	status: ServerStatus;
 	worldSize!: WorldSize;
 	process!: pty.IPty;
+	logStream!: WriteStream;
 
 	constructor(autostart = false) {
 		super();
@@ -47,6 +48,8 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 			console.error(chalk.red("Unsupported platform"));
 			process.exitCode = 1;
 		}
+
+		writeFileSync(join(cwd(), "cache", "console.log"), "");
 
 		if (autostart) {
 			setTimeout(() => {
@@ -90,16 +93,14 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 			this.status.isStarting = true;
 			this.emit("status", this.status);
 
+			truncateSync(join(cwd(), "cache", "console.log"));
+			this.logStream = createWriteStream(join(cwd(), "cache", "console.log"));
+
 			//Wait for the shell to start
 			this.process.onData((data) => {
-				// if (stripAnsi(data).match(/(> )./) == null) {
 				this.emit("stdout", data);
-				// }
-				// else {
-				// 	const ansiLess = stripAnsi(data).replace("\n", "").replace("\r", "");
-				// 	console.log(ansiLess, `replaced: ${data.replace(/(> ).*/, "")}`);
-				// 	this.emit("stdout", data.replace(/(> ).*/, ""));
-				// }
+
+				this.logStream.write(data);
 
 				if (this.status.isStarting) {
 					if (data.match(/(Done \(\d*\.\d{3}s\)! For help, type "help")/)) {
@@ -130,33 +131,18 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 				}
 			});
 
-			this.process.on("exit", (code) => {
+			this.process.onExit((code) => {
 				this.status.enabled = false;
 				this.status.isStarting = false;
 				this.status.isStopping = false;
 				this.status.startDate = null;
 				this.status.players = [];
-				if (code != 0) this.emit("crash", "The server has crashed. Checkout the crash logs.");
+				this.logStream.close();
+
+				if (code.exitCode != 0) this.emit("crash", "The server has crashed. Checkout the crash logs.");
 
 				this.emit("status", this.status);
 			});
-
-			// 	this.process.on("error", async (error: any) => {
-			// 		if (error.code == "ENOENT") {
-			// 			console.log(chalk.red(new Error("SERVER_DIR/SERVER_JAR is not a valid path.")));
-			// 			await createCrashLog(
-			// 				`SERVER_DIR/SERVER_JAR is not a valid path.\n Your path: ${join(
-			// 					process.env.SERVER_DIR as string,
-			// 					process.env.SERVER_JAR as string
-			// 				)}`
-			// 			);
-			// 		} else {
-			// 			console.log(chalk.red(new Error("Unexpected error occured when starting the server.")));
-			// 			await createCrashLog(`Unexpected error while staring the server:\n${error.toString()}`);
-			// 		}
-
-			// 		this.emit("crash", "There was an error while starting the server.");
-			// 	});
 
 			this.status.startDate = Date.now();
 			return true;
@@ -265,27 +251,11 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 	};
 }
 
-// const createCrashLog = async (error: string) => {
-// 	const logs = await readdir(join(process.cwd(), "logs"));
-
-// 	let crashLogNumber = 1;
-
-// 	for (const log of logs) {
-// 		if (log.includes(new Date().toLocaleDateString())) {
-// 			crashLogNumber++;
-// 		}
-// 	}
-
-// 	const fileName = `crashLog-${new Date().toLocaleDateString()}-${crashLogNumber}.txt`;
-
-// 	await writeFile(join(process.cwd(), "logs", fileName), error);
-// };
-
 export const serverRouter = Router();
 
 serverRouter.get("/worldSize", async (req: Request, res: Response) => {
 	const worldSize = await instance.getWorldSize(req.query.refresh == "true");
-	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
 	res.status(200).json(worldSize);
 });
 

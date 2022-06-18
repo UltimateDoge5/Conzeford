@@ -61,13 +61,13 @@ authRouter.post("/password", async (req, res) => {
 	res.sendStatus(200);
 });
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
 	if (!req.headers.authorization) {
 		res.setHeader("WWW-Authenticate", 'Basic realm="Please login to access the dashboard.", charset="UTF-8"');
 		res.status(401).send("Missing Authorization Header");
 	} else {
 		const auth = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("ascii").split(":");
-		if (auth[0] === "admin" && compare(auth[1], settingsManager.settings.auth.hash! || "")) {
+		if (auth[0] === "admin" && (await compare(auth[1], settingsManager.settings.auth.hash! || ""))) {
 			next();
 		} else {
 			res.setHeader("WWW-Authenticate", 'Basic realm="Please login to access the dashboard.", charset="UTF-8"');

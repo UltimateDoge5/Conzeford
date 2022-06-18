@@ -14,6 +14,7 @@ import authRouter, { authMiddleware } from "./auth";
 import logsRouter from "./logs";
 import chalk from "chalk";
 import { compare } from "bcrypt";
+import { cwd } from "process";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env"), override: false });
 
@@ -58,14 +59,38 @@ if (settingsManager.settings.auth.enabled) {
 	console.log(chalk.yellow("Authentication disabled."));
 }
 
-app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
-app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
-
 app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
-app.get("*", (_req: Request, res: Response) => {
-	res.redirect("http://localhost:3000");
-});
+//If in production enviroment
+if ((process as any).pkg) {
+	process.env.NODE_ENV = "";
+	const outPath = join(dirname(__dirname), "web/out/");
+	app.use("/_next", express.static(join(outPath, "_next")));
+
+	app.get("/", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "index.html"));
+	});
+
+	app.get("/console", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "console.html"));
+	});
+
+	app.get("/logs", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "logs.html"));
+	});
+
+	app.get("/settings", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "settings.html"));
+	});
+
+	app.get("*", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "404.html"));
+	});
+} else {
+	app.get("*", (_req: Request, res: Response) => {
+		res.redirect("http://localhost:3000");
+	});
+}
 
 const server = app.listen(process.env.PORT || 5454, () => {
 	console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`));
@@ -94,14 +119,11 @@ wsServer.on("connection", async (socket) => {
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
 	if (instance.status.enabled && !instance.status.isStarting) {
-		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
-		const logs = log.split("\n");
+		const log = await readFile(join(cwd(), "cache", "console.log"), "utf8");
 
 		setTimeout(() => {
-			logs.forEach((line) => {
-				socket.send(JSON.stringify({ event: "log", log: line }));
-			});
-		}, 1000);
+			socket.send(JSON.stringify({ event: "log", log }));
+		}, 100);
 	}
 
 	socket.on("message", (data) => {

@@ -26,13 +26,16 @@
     "@types/ws": "^8.5.3"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p web/tsconfig.json && pkg build/index.js -c package.json --compress Brotli"
+    "build": "tsc -p tsconfig.json && yarn prebuildClient && pkg build/index.js -c package.json --compress Brotli",
+    "prebuildClient": "cd web && yarn build && yarn export"
   },
   "pkg": {
     "scripts": "build/**/*.js",
     "outputPath": "dist",
     "assets": [
-      "web/**/*"
+      "web/out/**/*",
+      "node_modules/bcrypt/lib/**/*",
+      "node_modules/node-pty/build/**/*"
     ],
     "targets": [
       "node16-win-x64",
