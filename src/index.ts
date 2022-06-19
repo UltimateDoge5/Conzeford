@@ -15,6 +15,7 @@ import logsRouter from "./logs";
 import chalk from "chalk";
 import { compare } from "bcrypt";
 import { cwd } from "process";
+import cors from "cors";
 
 const result = dotenv.config({ path: join(process.cwd(), "config.env"), override: false });
 
@@ -59,8 +60,6 @@ if (settingsManager.settings.auth.enabled) {
 	console.log(chalk.yellow("Authentication disabled."));
 }
 
-app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
-
 //If in production enviroment
 if ((process as any).pkg) {
 	process.env.NODE_ENV = "";
@@ -83,12 +82,18 @@ if ((process as any).pkg) {
 		res.sendFile(join(outPath, "settings.html"));
 	});
 
+	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+
 	app.get("*", (req: Request, res: Response) => {
 		res.sendFile(join(outPath, "404.html"));
 	});
 } else {
-	app.get("*", (_req: Request, res: Response) => {
-		res.redirect("http://localhost:3000");
+	app.use(cors());
+
+	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+
+	app.get("*", (req: Request, res: Response) => {
+		res.redirect(`http://localhost:3000/${req.url}`);
 	});
 }
 

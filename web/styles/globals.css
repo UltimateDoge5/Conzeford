@@ -19,6 +19,11 @@ body {
 	color: white;
 }
 
+svg {
+	width: 24px;
+	height: 24px;
+}
+
 main {
 	position: relative;
 	padding: 8px;

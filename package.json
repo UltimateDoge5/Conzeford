@@ -19,11 +19,13 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/lodash": "^4.14.181",
     "@types/node": "^17.0.23",
     "@types/node-gzip": "^1.1.0",
-    "@types/ws": "^8.5.3"
+    "@types/ws": "^8.5.3",
+    "cors": "^2.8.5"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && yarn prebuildClient && pkg build/index.js -c package.json --compress Brotli",

@@ -14,7 +14,7 @@ After the initial setup of the application, basic things like starting/stopping 
 
 The Minecraft server itself is started as a java process managed by the app. The application communicates with the browser via WebSockets and REST Apis.
 
-The method for detection of the server events and the it's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
+The method for detection of the server events and it's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
 
 ## Features
 
@@ -24,6 +24,7 @@ This those are some of current and planned features:
 -   [x] Console interface
 -   [x] Aplication settings
 -   [x] Log reader
+-   [ ] Minecraft options manager (e.g. difficulty, max players, etc.)
 -   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
 -   [x] Password protection
 
@@ -36,8 +37,8 @@ You can download the latest version from [here](https://github.com/UltimateDoge5
 
 Conzeford **_will not_** set up a Minecraft server for you so you need to do that yourself.
 After that create the config.env file in the same directory as the Conzeford binary.
-Config.env will also be generated on start, if its not present but requires filling the values.
-The config looks like this:
+Config.env will also be generated on start, if its not present but requires filling in the values.
+The config file will like this:
 
 ```
 SERVER_JAR="server_jar_name_here" #Required
