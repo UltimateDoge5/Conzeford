@@ -51,7 +51,6 @@ export const settingsManager = new SettingsManager();
 export const uuidCache = new PlayerCache();
 
 app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }));
-app.use("/", authRouter);
 
 if (settingsManager.settings.auth.enabled) {
 	app.use("*", authMiddleware);
@@ -82,6 +81,7 @@ if ((process as any).pkg) {
 		res.sendFile(join(outPath, "settings.html"));
 	});
 
+	app.use("/auth", authRouter);
 	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
 	app.get("*", (req: Request, res: Response) => {
@@ -90,6 +90,7 @@ if ((process as any).pkg) {
 } else {
 	app.use(cors());
 
+	app.use("/auth", authRouter);
 	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
 	app.get("*", (req: Request, res: Response) => {

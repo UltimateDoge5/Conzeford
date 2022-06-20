@@ -17,6 +17,7 @@ body {
 	min-height: 100vh;
 	width: 100%;
 	color: white;
+	background-color: var(--lightPrimary);
 }
 
 svg {
@@ -53,6 +54,7 @@ input:disabled {
 	justify-content: center;
 	align-items: center;
 	gap: 8px;
+	cursor: pointer;
 }
 
 .button:hover,
@@ -64,7 +66,7 @@ input:disabled {
 	outline: var(--primaryDark) solid;
 }
 
-button button:disabled {
+button:disabled {
 	filter: brightness(80%) grayscale(10%);
 	pointer-events: none;
 }

@@ -1,0 +1,29 @@
+.switch {
+	position: relative;
+	display: inline-flex;
+	height: 24px;
+	width: 44px;
+	flex-shrink: 0;
+	cursor: pointer;
+	border-radius: 9999px;
+	border: 2px solid transparent;
+	transition: background 0.2s ease-in-out;
+	align-items: center;
+
+	:focus {
+		outline: none;
+		box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgba(255, 255, 255, 0.75);
+	}
+}
+
+.label {
+	pointer-events: none;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	border-radius: 9999px;
+	background-color: #fff;
+	box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgba(255, 255, 255, 0.75);
+	box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	transition: all 0.2s ease-in-out;
+}

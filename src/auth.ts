@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 
 const authRouter = Router();
 
-authRouter.post("/toggleAuth", async (req: Request, res: Response) => {
+authRouter.post("/toggle", async (req: Request, res: Response) => {
 	const { enabled } = req.body;
 
 	if (enabled) {
@@ -26,7 +26,7 @@ authRouter.post("/toggleAuth", async (req: Request, res: Response) => {
 				}
 			});
 
-			res.sendStatus(200);
+			res.sendStatus(204);
 		}
 	} else {
 		await settingsManager.updateSettings({
@@ -35,29 +35,39 @@ authRouter.post("/toggleAuth", async (req: Request, res: Response) => {
 			}
 		});
 
-		res.sendStatus(200);
+		res.sendStatus(204);
 	}
 });
 
 authRouter.post("/password", async (req, res) => {
-	let { password } = req.body;
-	password = password.trim();
+	let { oldPassword, newPassword } = req.body;
+	newPassword = newPassword.trim();
 
-	if (password.length < 8) {
+	if (newPassword.length < 8) {
 		res.status(400).json({ error: "Password must be at least 8 characters long." });
 		return;
-	} else if (password.length > 32) {
+	} else if (newPassword.length > 32) {
 		res.status(400).json({ error: "Password must be less than 32 characters long." });
 		return;
 	}
 
-	const passwordHash = await hash(password, 10);
+	if (settingsManager.settings.auth.hash == null) {
+		res.status(400).json({ error: "No password set." });
+		return;
+	}
+
+	if (!(await compare(oldPassword.trim(), settingsManager.settings.auth.hash))) {
+		res.status(400).json({ error: "Incorrect old password." });
+	}
+
+	const passwordHash = await hash(newPassword, 10);
 
 	await settingsManager.updateSettings({
 		auth: {
 			hash: passwordHash
 		}
 	});
+
 	res.sendStatus(200);
 });
 

@@ -11,7 +11,10 @@ import { readFileSync } from "fs";
 const settingsRouter = Router();
 
 settingsRouter.get("/settings", async (_req: Request, res: Response) => {
-	res.status(200).json({ ...settingsManager.settings, auth: { ...settingsManager.settings.auth, hash: null } });
+	res.status(200).json({
+		...settingsManager.settings,
+		auth: { ...settingsManager.settings.auth, hash: settingsManager.settings.auth.hash != null ? "hash" : null }
+	});
 });
 
 settingsRouter.post("/settings", async (req: Request, res: Response) => {
