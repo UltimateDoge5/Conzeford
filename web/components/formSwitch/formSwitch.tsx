@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Switch } from "@headlessui/react";
-import { useField } from "formik";
-
 import styles from "./style.module.scss";
 
 const FormSwitch = ({ state, onChange }: FormSwitchProps) => {

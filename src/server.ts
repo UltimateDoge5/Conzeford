@@ -62,7 +62,7 @@ java ${JRE_FLAGS} -jar ${join(process.env.SERVER_DIR as string, process.env.SERV
 		const shutdownDelay = settingsManager.settings.shutdownDelay;
 		if (this.status.enabled && !this.status.isStopping) {
 			if (shutdownDelay.enabled && !immediate) {
-				this.process.write(`say ${shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString())}\n`);
+				this.process.write(`[Server] say ${shutdownDelay.message.replace("{delay}", shutdownDelay.delay.toString())}\n`);
 
 				setTimeout(() => {
 					this.process.write("stop\n");

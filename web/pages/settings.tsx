@@ -71,6 +71,10 @@ const Settings = () => {
 							will take place in X amount of time.
 							<br />
 							<br />
+							The <code>{"{delay}"}</code> in your message will be replaced with the amount of time in seconds remaining to the
+							shutdown.
+							<br />
+							<br />
 							The delay and the message are configurable.
 						</p>
 					</div>

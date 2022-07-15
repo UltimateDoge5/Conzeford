@@ -5,6 +5,8 @@ So what exactly is Conzeford?
 It's a web application that allows you to control your Minecraft server from your browser.
 It starts a java process in the background and provides multiple ways of management and interaction through the web interface.
 
+![Dashboard of the app](./docs/dashboard.png)
+
 ## What's the purpose?
 
 I wanted an easy way for my friends without extensive knowledge of using VPS's and Linux to control their Minecraft servers.
@@ -24,7 +26,7 @@ This those are some of current and planned features:
 -   [x] Console interface
 -   [x] Aplication settings
 -   [x] Log reader
--   [ ] Minecraft options manager (e.g. difficulty, max players, etc.)
+-   [ ] Customizable dashboard
 -   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
 -   [x] Password protection
 

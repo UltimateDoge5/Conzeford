@@ -127,9 +127,7 @@ wsServer.on("connection", async (socket) => {
 	if (instance.status.enabled && !instance.status.isStarting) {
 		const log = await readFile(join(cwd(), "cache", "console.log"), "utf8");
 
-		setTimeout(() => {
-			socket.send(JSON.stringify({ event: "log", log }));
-		}, 100);
+		setTimeout(() => socket.send(JSON.stringify({ event: "log", log })), 100);
 	}
 
 	socket.on("message", (data) => {
@@ -172,29 +170,23 @@ wsServer.on("connection", async (socket) => {
 export const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
 
 instance.addListener("stdout", (data: Buffer) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8") }));
-	});
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "log", log: data.toString("utf-8") })));
 });
 
 instance.addListener("status", (status: ServerStatus) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "status", status }));
-	});
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "status", status })));
 });
 
 instance.addListener("crash", (error: string) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "crash", message: error }));
-	});
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "crash", message: error })));
 });
 
 const onExit = () => {
-	wsServer.clients.forEach((client) => {
+	wsServer.clients.forEach((client) =>
 		client.send(
 			JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } })
-		);
-	});
+		)
+	);
 };
 
 process.on("exit", onExit);

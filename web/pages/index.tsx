@@ -44,7 +44,7 @@ const Dashboard = () => {
 				<div>
 					<Menu.Items className={styles.optionsContent}>
 						<Menu.Item>
-							{({ active }) => (
+							{() => (
 								<button
 									className="button danger"
 									title="Stop the server wihtout a delay"
@@ -55,7 +55,7 @@ const Dashboard = () => {
 							)}
 						</Menu.Item>
 						<Menu.Item>
-							{({ active }) => (
+							{() => (
 								<button
 									className="button danger"
 									title="Restart the server."
@@ -66,7 +66,7 @@ const Dashboard = () => {
 							)}
 						</Menu.Item>
 						<Menu.Item>
-							{({ active }) => (
+							{() => (
 								<button
 									className="button danger"
 									title="Restart the server wihtout a delay"
