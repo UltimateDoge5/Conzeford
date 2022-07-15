@@ -94,7 +94,7 @@ if ((process as any).pkg) {
 	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
 	app.get("*", (req: Request, res: Response) => {
-		res.redirect(`http://localhost:3000/${req.url}`);
+		res.redirect(`http://localhost:3000${req.url}`);
 	});
 }
 
