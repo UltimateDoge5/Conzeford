@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
 import { Server } from "ws";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage } from "http";
 import { Duplex } from "stream";
 import { readFile } from "fs/promises";
 import { statSync, writeFileSync } from "fs";
@@ -14,8 +14,10 @@ import authRouter, { authMiddleware } from "./auth";
 import logsRouter from "./logs";
 import chalk from "chalk";
 import { compare } from "bcrypt";
+import { cwd } from "process";
+import cors from "cors";
 
-const result = dotenv.config({ path: join(process.cwd(), "config.env") });
+const result = dotenv.config({ path: join(process.cwd(), "config.env"), override: false });
 
 try {
 	if (result.error) {
@@ -49,7 +51,6 @@ export const settingsManager = new SettingsManager();
 export const uuidCache = new PlayerCache();
 
 app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }));
-app.use("/", authRouter);
 
 if (settingsManager.settings.auth.enabled) {
 	app.use("*", authMiddleware);
@@ -58,34 +59,44 @@ if (settingsManager.settings.auth.enabled) {
 	console.log(chalk.yellow("Authentication disabled."));
 }
 
-app.use("/scripts", express.static(join(dirname(__dirname), "build/client")));
-app.use("/styles", express.static(join(dirname(__dirname), "web/styles")));
+//If in production enviroment
+if ((process as any).pkg) {
+	process.env.NODE_ENV = "";
+	const outPath = join(dirname(__dirname), "web/out/");
+	app.use("/_next", express.static(join(outPath, "_next")));
 
-app.get("/", (req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/index.html"));
-});
+	app.get("/", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "index.html"));
+	});
 
-app.get("/console", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/console.html"));
-});
+	app.get("/console", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "console.html"));
+	});
 
-app.get("/settings", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/settings.html"));
-});
+	app.get("/logs", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "logs.html"));
+	});
 
-app.get("/logs", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/logs.html"));
-});
+	app.get("/settings", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "settings.html"));
+	});
 
-app.get("/logs/:logId", async (_req: Request, res: Response) => {
-	res.sendFile(join(dirname(__dirname), "web/pages/logViewer.html"));
-});
+	app.use("/auth", authRouter);
+	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
 
-app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+	app.get("*", (req: Request, res: Response) => {
+		res.sendFile(join(outPath, "404.html"));
+	});
+} else {
+	app.use(cors());
 
-app.get("*", (_req: Request, res: Response) => {
-	res.sendStatus(404);
-});
+	app.use("/auth", authRouter);
+	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+
+	app.get("*", (req: Request, res: Response) => {
+		res.redirect(`http://localhost:3000/${req.url}`);
+	});
+}
 
 const server = app.listen(process.env.PORT || 5454, () => {
 	console.log(chalk.black.bgGreen(`Running on http://localhost:${process.env.PORT || 5454}`));
@@ -114,20 +125,9 @@ wsServer.on("connection", async (socket) => {
 	socket.send(JSON.stringify({ event: "status", status: instance.status }));
 
 	if (instance.status.enabled && !instance.status.isStarting) {
-		const log = await readFile(join(process.env.SERVER_DIR as string, "logs/latest.log"), "utf8");
-		const logs = log.split("\n");
+		const log = await readFile(join(cwd(), "cache", "console.log"), "utf8");
 
-		logs.forEach((line) => {
-			let color = "white";
-
-			if (line.match(/(?<=\[)(.*?WARN)(?=\])/)) {
-				color = "yellow";
-			} else if (line.match(/(?<=\[)(.*?ERROR)(?=\])/)) {
-				color = "red";
-			}
-
-			socket.send(JSON.stringify({ event: "log", log: line, color }));
-		});
+		setTimeout(() => socket.send(JSON.stringify({ event: "log", log })), 100);
 	}
 
 	socket.on("message", (data) => {
@@ -170,43 +170,23 @@ wsServer.on("connection", async (socket) => {
 export const instance = new McServer(process.env.SERVER_AUTOSTART == "true");
 
 instance.addListener("stdout", (data: Buffer) => {
-	let color = "white";
-
-	if (data.toString().match(/(?<=\[)(.*?WARN)(?=\])/)) {
-		color = "yellow";
-	} else if (data.toString().match(/(?<=\[)(.*?ERROR)(?=\])/)) {
-		color = "red";
-	}
-
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", log: data.toString("utf-8"), color }));
-	});
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "log", log: data.toString("utf-8") })));
 });
 
-instance.addListener("error", (error: string) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "log", log: error, color: "red" }));
-	});
-});
-
-instance.addListener("status", (status: serverStatus) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "status", status }));
-	});
+instance.addListener("status", (status: ServerStatus) => {
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "status", status })));
 });
 
 instance.addListener("crash", (error: string) => {
-	wsServer.clients.forEach((client) => {
-		client.send(JSON.stringify({ event: "crash", message: error }));
-	});
+	wsServer.clients.forEach((client) => client.send(JSON.stringify({ event: "crash", message: error })));
 });
 
 const onExit = () => {
-	wsServer.clients.forEach((client) => {
+	wsServer.clients.forEach((client) =>
 		client.send(
 			JSON.stringify({ event: "status", status: { enabled: false, isStarting: false, isStopping: false, players: [], startDate: null } })
-		);
-	});
+		)
+	);
 };
 
 process.on("exit", onExit);

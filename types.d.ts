@@ -4,12 +4,13 @@ interface Payload {
 	command: any;
 }
 
-interface serverStatus {
+interface ServerStatus {
 	enabled: boolean;
 	isStarting: boolean;
 	isStopping: boolean;
 	players: string[];
-	startDate: Date | null;
+	startDate: number | null;
+	disconnected?: boolean;
 }
 
 interface Settings {

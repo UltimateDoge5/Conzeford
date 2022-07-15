@@ -5,6 +5,8 @@ So what exactly is Conzeford?
 It's a web application that allows you to control your Minecraft server from your browser.
 It starts a java process in the background and provides multiple ways of management and interaction through the web interface.
 
+![Dashboard of the app](./docs/dashboard.png)
+
 ## What's the purpose?
 
 I wanted an easy way for my friends without extensive knowledge of using VPS's and Linux to control their Minecraft servers.
@@ -14,18 +16,19 @@ After the initial setup of the application, basic things like starting/stopping 
 
 The Minecraft server itself is started as a java process managed by the app. The application communicates with the browser via WebSockets and REST Apis.
 
-The method for detection of the server events and the is's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
+The method for detection of the server events and it's disadvantages are described [here](#Spoofing-the-detection-of-server-events).
 
 ## Features
 
 This those are some of current and planned features:
 
--   [x] State management
+-   [x] State management (start/stop/restart)
 -   [x] Console interface
 -   [x] Aplication settings
 -   [x] Log reader
+-   [ ] Customizable dashboard
 -   [ ] [Plugin based event detection](#Spoofing-the-detection-of-server-events)
--   [ ] Password protection
+-   [x] Password protection
 
 The exact list can be found [here](https://github.com/UltimateDoge5/Conzeford/projects/1).  
 Conzeford also has its own configurable features like shutdown delay - before a shutdown a message about it is sent to the players. And a lot of smaller features.
@@ -36,14 +39,14 @@ You can download the latest version from [here](https://github.com/UltimateDoge5
 
 Conzeford **_will not_** set up a Minecraft server for you so you need to do that yourself.
 After that create the config.env file in the same directory as the Conzeford binary.
-Config.env will also be generated on start, if its not present but requires filling the values.
-The config looks like this:
+Config.env will also be generated on start, if its not present but requires filling in the values.
+The config file will like this:
 
 ```
-SERVER_JAR="server_jar_name_here" #required
-SERVER_DIR="directory_of_server_jar_here" #required
+SERVER_JAR="server_jar_name_here" #Required
+SERVER_DIR="directory_of_server_jar_here" #Required
 JRE_FLAGS="your_jre_flags_here" #Here you can put you jre flags like -Xmx4G. Not required
-SERVER_AUTOSTART=false #true or false
+SERVER_AUTOSTART=false #True or false
 PORT=port #Not required
 ```
 

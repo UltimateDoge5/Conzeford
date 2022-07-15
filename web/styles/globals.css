@@ -13,10 +13,22 @@
 
 body {
 	margin: 0;
-	font-family: "Roboto", sans-serif !important;
+	font-family: "Roboto", "Segoe UI" !important;
 	min-height: 100vh;
 	width: 100%;
 	color: white;
+	background-color: var(--lightPrimary);
+}
+
+code {
+	background-color: #f5f5f5dd;
+	padding: 2px;
+	border-radius: 4px;
+}
+
+svg {
+	width: 24px;
+	height: 24px;
 }
 
 main {
@@ -48,6 +60,7 @@ input:disabled {
 	justify-content: center;
 	align-items: center;
 	gap: 8px;
+	cursor: pointer;
 }
 
 .button:hover,
@@ -59,7 +72,7 @@ input:disabled {
 	outline: var(--primaryDark) solid;
 }
 
-button button:disabled {
+button:disabled {
 	filter: brightness(80%) grayscale(10%);
 	pointer-events: none;
 }
@@ -175,4 +188,10 @@ svg.warning * {
 	100% {
 		bottom: 16px;
 	}
+}
+
+.xterm-screen,
+.xterm-viewport {
+	max-width: 100%;
+	max-height: 100%;
 }
