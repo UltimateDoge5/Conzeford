@@ -83,6 +83,7 @@ if ((process as any).pkg) {
 
 	app.use("/auth", authRouter);
 	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+	// app.get("/socketPort", (req: Request, res: Response) => res.json(process.env.PORT || "5454"));
 
 	app.get("*", (req: Request, res: Response) => {
 		res.sendFile(join(outPath, "404.html"));
@@ -92,6 +93,7 @@ if ((process as any).pkg) {
 
 	app.use("/auth", authRouter);
 	app.use("/api", settingsRouter, serverRouter, logsRouter, headsRouter);
+	// app.get("/socketPort", (req: Request, res: Response) => res.json(process.env.PORT || "5454"));
 
 	app.get("*", (req: Request, res: Response) => {
 		res.redirect(`http://localhost:3000${req.url}`);

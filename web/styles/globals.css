@@ -11,6 +11,10 @@
 	--dangerDark: #f50505;
 }
 
+* {
+	box-sizing: border-box;
+}
+
 body {
 	margin: 0;
 	font-family: "Roboto", "Segoe UI" !important;
@@ -31,14 +35,15 @@ svg {
 	height: 24px;
 }
 
-main {
+main,
+.main {
 	position: relative;
 	padding: 8px;
 	left: 96px;
 	top: 80px;
 	box-sizing: border-box;
 	width: calc(100% - 6rem);
-	height: calc(100vh - 80px);
+	height: calc(100vh - 80px) !important;
 	background-color: var(--lightPrimary);
 }
 
